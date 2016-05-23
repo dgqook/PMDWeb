@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="main">
+     
+     <!-- 일반 로그인 -->
+    <select id="doLoginFunction" parameterType="hashmap" resultType="hashmap">
+        <![CDATA[
+            SELECT
+            	USER_ID,	
+            	USER_PW,		
+            	USER_PMSS,	
+            	USER_NAME,
+            	USER_EMAIL,
+				USER_CO_NAME,
+				USER_CO_ZIP,		
+				USER_CO_ADDR_SYS,		
+				USER_CO_ADDR,
+				USER_TEL,	
+				USER_HP,		
+				USER_REG_DATE,		
+				USER_RECENT_CONN,	
+				USER_EXPIRY_DATE
+            FROM
+                USER_INFO
+            WHERE
+                USER_ID = #{userId}
+                AND
+                USER_PW = LEFT(MD5(#{userPw}),10)
+        ]]>
+    </select>
+    
+    
+    
+     <!-- 자동 로그인 (암호화된 비밀번호) -->
+    <select id="doAutoLoginFunction" parameterType="hashmap" resultType="hashmap">
+    	<![CDATA[
+            SELECT
+            	USER_ID,	
+            	USER_PW,		
+            	USER_PMSS,	
+            	USER_NAME,
+            	USER_EMAIL,
+				USER_CO_NAME,
+				USER_CO_ZIP,		
+				USER_CO_ADDR_SYS,		
+				USER_CO_ADDR,
+				USER_TEL,	
+				USER_HP,		
+				USER_REG_DATE,		
+				USER_RECENT_CONN,	
+				USER_EXPIRY_DATE
+            FROM
+                USER_INFO
+            WHERE
+                USER_ID = #{userId}
+                AND
+                USER_PW = #{userPw}
+        ]]>
+    </select>
+    
+    <!-- 계정 찾기, 이메일 주소를 조회하여 매칭 되는 사용자의 이름과 비밀번호 반환, 메일로 비밀번호 새로 지정하도록 변경 -->
+    <select id="doFindAccount" parameterType="hashmap" resultType="hashmap">
+    	<![CDATA[
+    		SELECT USER_ID, USER_NAME, USER_EMAIL FROM USER_INFO WHERE USER_EMAIL=#{userEmail};
+    		
+    	]]>
+    </select>
+    
+    <!-- 비밀번호 변경 인증 데이터 등록 -->
+    <insert id="doIssueAuthCode" parameterType="hashmap">
+    	<![CDATA[
+    		INSERT INTO AUTH_INFO(USER_ID,USER_EMAIL,AUTH_CLASS,AUTH_CODE,ISSUE_DTTM,EXPIRY_DTTM) 
+    		VALUES(
+    			#{userId},
+    			#{userEmail},
+    			'CHANGE_PASSWORD',
+    			MD5(CONCAT(#{userEmail}, #{nowDttm})),
+    			#{nowDttm},
+    			DATE_ADD(NOW(),INTERVAL 30 MINUTE)    			
+    		);
+    	]]>
+    </insert>
+    
+    <!-- 인증코드 조회 -->
+    <select id="doGetAuthCode" parameterType="hashmap" resultType="hashmap">
+    	<![CDATA[
+    		SELECT AUTH_CODE, EXPIRY_DTTM FROM AUTH_INFO WHERE USER_ID=#{userId} ORDER BY ISSUE_DTTM DESC LIMIT 1 ;
+    	]]>
+    </select>
+    
+    <!-- 메일에서 비밀번호 변경 -->
+     <update id="doChangePassword" parameterType="hashmap">
+     	<![CDATA[
+     		UPDATE USER_INFO SET USER_PW = LEFT(MD5(#{userPw}),10) WHERE USER_Id=#{userId}
+     	]]>
+     </update>
+     
+     <!-- 회원가입 -->
+    <insert id="doCreateAccount" parameterType="hashmap">
+    	<![CDATA[
+    		INSERT INTO USER_INFO(
+				USER_ID,	USER_PW,				USER_PMSS,	USER_NAME,	USER_EMAIL,
+				USER_CO_NAME,	USER_CO_ZIP,		USER_CO_ADDR_SYS,		USER_CO_ADDR,
+				USER_TEL,	USER_HP,	USER_REG_DATE,	USER_RECENT_CONN,	USER_EXPIRY_DATE
+			)
+			VALUES
+			(
+				#{userId},	LEFT(MD5(#{userPw}),10),'C',		#{userName},#{userEmail},
+				#{userCoName},	#{userCoZip},		#{userCoAddrSys},		#{userCoAddr},
+				#{userTel},	#{userHp},	CURDATE(),		CURDATE(),			CURDATE()
+			);
+    	]]>
+    </insert>
+    
+    <!-- 아이디 체크 -->
+    <select id="doIdCheck" parameterType="hashmap" resultType="hashmap">
+    	<![CDATA[
+    		SELECT USER_ID FROM USER_INFO WHERE USER_ID=#{userId}
+    	]]>
+    </select>
+    
+    <!-- 이메일 체크 -->
+    <select id="doEmailCheck" parameterType="hashmap" resultType="hashmap">
+    	<![CDATA[
+    		SELECT USER_EMAIL FROM USER_INFO WHERE USER_EMAIL=#{userEmail}
+    	]]>
+    </select>
+    
+    
+     <!-- 비밀번호 체크 -->
+    <select id="doPwCheck" parameterType="hashmap" resultType="hashmap">
+    	<![CDATA[
+    		SELECT USER_ID FROM USER_INFO WHERE USER_ID=#{userId} AND USER_PW= LEFT(MD5(#{userPw}),10)
+    	]]>
+    </select>
+    
+     <!-- 사용자 정보 수정 -->
+     <update id="doModUserInfo" parameterType="hashmap">
+     	<![CDATA[
+     		UPDATE USER_INFO 
+     			SET 
+	     			USER_PW = LEFT(MD5(#{userPw}),10),
+	     			USER_NAME = #{userName},
+	     			USER_CO_NAME = #{userCoName},
+	     			USER_CO_ZIP = #{userCoZip},
+	     			USER_CO_ADDR = #{userCoAddr},
+	     			USER_CO_ADDR_SYS= #{userCoAddrSys},
+	     			USER_TEL = #{userTel},
+	     			USER_HP = #{userHp}
+     			WHERE 
+     				USER_Id=#{userId}
+     				AND
+     				USER_EMAIL=#{userEmail}
+     	]]>
+     </update>
+     
+</mapper>

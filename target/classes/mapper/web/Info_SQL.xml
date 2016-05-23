@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="info">
+	<resultMap id="softwareInfoVO"  type="pmd.common.vo.SoftwareInfoVO">
+		<result property="ownSer" column="OWN_SER"/>
+		<result property="swName" column="SW_NAME"/>
+		<result property="swVendor" column="SW_VENDOR"/>
+		<result property="swFile" column="SW_FILE"/>
+		<result property="swVersion" column="SW_VERSION"/>
+		<result property="swVendorKr" column="SW_VENDOR_KR"/>
+		<result property="userId" column="USER_ID"/>
+		<result property="pcName" column="PC_NAME"/>
+		<result property="pcIp" column="PC_IP"/>
+		<result property="pcOs" column="PC_OS"/>
+		<result property="updateDate" column="UPDATE_DATE"/>
+		<result property="ownQuantity" column="OWN_QUANTITY"/>
+		<result property="ownExpDate" column="OWN_EXP_DATE"/>
+	</resultMap>
+	     
+     <!-- 보유 소프트웨어 조회 -->
+    <select id="getOwnedSoftware" parameterType="hashmap" resultMap="softwareInfoVO">
+        <![CDATA[
+            SELECT
+            	OWN_SER,
+            	USER_ID,
+            	SW_NAME,
+            	SW_VENDOR,
+            	OWN_QUANTITY,
+            	OWN_EXP_DATE
+            FROM
+                OWNED_SW_LIST
+            WHERE
+                USER_ID = #{userId}
+        ]]>
+    </select>
+    
+     <!-- 설치 소프트웨어 조회 -->
+    <select id="getInstalledSoftware" parameterType="hashmap" resultMap="softwareInfoVO" >
+        <![CDATA[
+            SELECT
+            	USER_ID,
+            	PC_NAME,
+            	PC_IP,
+            	PC_OS,
+            	SW_NAME,
+            	UPDATE_DATE
+            FROM
+                INSTALLED_SW_LIST
+            WHERE
+                USER_ID = #{userId}
+        ]]>
+    </select>
+    
+    <!-- 유료 소프트웨어 목록 조회 -->
+    <select id="getChargedSoftware" parameterType="hashmap" resultMap="softwareInfoVO">
+        <![CDATA[
+            SELECT
+            	SW_NAME,
+            	SW_VENDOR,
+            	SW_VENDOR_KR,
+            	SW_FILE,
+            	SW_VERSION
+            FROM
+                CHARGED_SW_LIST
+        ]]>
+    </select>
+    
+    <!-- 사용자에 속한 PC들의 소프트웨어 목록 조회 -->
+    <select id="getUserPcList" parameterType="hashmap" resultMap="softwareInfoVO">
+    	<![CDATA[
+    		SELECT
+    			PC_NAME,
+    			PC_OS,
+    			SW_NAME,
+    			UPDATE_DATE,
+    			PARAM1
+    		FROM
+    			INSTALLED_SW_LIST
+    		WHERE
+    			USER_ID = #{userId}
+    	]]>
+    </select>
+    
+    <!-- 사용자에 속한 특정 PC의 소프트웨어 목록 조회 -->
+    <select id="getUserPcListByPk" parameterType="hashmap" resultMap="softwareInfoVO">
+    	<![CDATA[
+    		SELECT
+    			PC_NAME,
+    			PC_OS,
+    			SW_NAME,
+    			UPDATE_DATE,
+    			PARAM1
+    		FROM
+    			INSTALLED_SW_LIST
+    		WHERE
+    			PC_NAME=#{pcName} AND USER_ID=#{userId}
+    	]]>
+    </select>
+    
+    <!-- 사용자 PC에 있는 소프트웨어를 DB에 업데이트 -->
+    <insert id="updateUserPcSwList" parameterType="hashmap">
+    	<![CDATA[
+    		INSERT INTO INSTALLED_SW_LIST(SW_NAME,SW_FILE,USER_ID,PC_NAME,PC_IP,PC_OS,UPDATE_DATE)
+    		VALUES
+    	]]>
+   		<foreach collection="list" item="item" separator=",">
+   		<![CDATA[
+   			(#{item.swName},#{item.swFile},#{item.userId},#{item.pcName},#{item.pcIp},#{item.pcOs},#{item.updateDate})
+   		]]>
+   		</foreach>
+    </insert>
+    
+    <!-- 특정 키워드를 포함하는 유료 소프트웨어 목록 조회 -->
+    <select id="getChargedSoftwareByPk" parameterType="hashmap" resultMap="softwareInfoVO">
+        <![CDATA[
+            SELECT
+            	SW_NAME,
+            	SW_VENDOR,
+            	SW_VENDOR_KR,
+            	SW_FILE,
+            	SW_VERSION
+            FROM
+                CHARGED_SW_LIST
+            WHERE
+            	SW_NAME LIKE '%${searchKeyword}%'
+            	OR
+            	SW_VENDOR LIKE '%${searchKeyword}%'
+            	OR
+            	SW_VENDOR_KR LIKE '%${searchKeyword}%'
+        ]]>
+    </select>
+    
+    <!-- 보유 소프트웨어 등록 -->
+    <insert id="doRegisterSoftware" parameterType="hashmap">
+    	<![CDATA[
+    		INSERT INTO OWNED_SW_LIST(SW_NAME,USER_ID,SW_VENDOR,OWN_QUANTITY,OWN_EXP_DATE)
+    		VALUES
+    	]]>
+   		<foreach collection="regList" item="item" separator=",">
+	   		<![CDATA[
+	   			(#{item.swName},#{item.userId},#{item.swVendor},#{item.ownQuantity}, if(#{item.ownExpDate}='',null,#{item.ownExpDate}))
+	   		]]>
+   		</foreach>
+    </insert>
+    
+    <!-- 보유 소프트웨어 수량 추가 -->
+    <update id="doUpdateSoftware" parameterType="hashmap">
+    	<![CDATA[
+    		UPDATE OWNED_SW_LIST SET OWN_QUANTITY= CASE
+    	]]>
+    	<foreach collection="dupList" item="item" separator=" ">
+	   		<![CDATA[ 
+	   			WHEN SW_NAME=#{item.swName} AND OWN_EXP_DATE=#{item.ownExpDate} THEN ${item.ownQuantity}
+	   		]]>
+   		</foreach>
+   		<![CDATA[
+   			ELSE OWN_QUANTITY
+   			END
+   		]]>
+    </update>
+    
+    <delete id="doDeleteSoftware" parameterType="hashMap">
+    	<![CDATA[
+    		DELETE FROM OWNED_SW_LIST WHERE
+    	]]>
+    	<foreach collection="list" item="item" separator=" OR ">
+    		<![CDATA[
+    			OWN_SER=${item.ownSer}
+    		]]>
+    	</foreach>
+    </delete>
+    
+</mapper>
