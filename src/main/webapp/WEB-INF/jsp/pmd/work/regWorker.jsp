@@ -244,7 +244,7 @@
 				  }
 				}
 			
-				google.charts.load('current', {'packages':['table']});////
+				google.charts.load('current', {'packages':['table']}); // branch test 2
 			      google.charts.setOnLoadCallback(drawTable);
 			
 			      function drawTable() {
