@@ -313,7 +313,7 @@
 		    	  }
 		    	  
 		    	  f[0].method="post";
-		    	  f[0].action="${pageContext.request.contextPath}/web/info/delete.do";
+		    	  f[0].action="<c:url value='/web/info/delete.do'/>";
 		    	  f[0].submit();
 		      }
 		      
@@ -337,7 +337,7 @@
 		    		  }
 		    	  }
 		    	  f[0].method="post";
-		    	  f[0].action="${pageContext.request.contextPath}/web/info/request.do";
+		    	  f[0].action="<c:url value='/web/info/request.do'/>";
 		    	  f[0].submit();
 		      }
 		    </script>

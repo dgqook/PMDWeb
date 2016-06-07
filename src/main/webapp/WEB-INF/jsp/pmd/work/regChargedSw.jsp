@@ -252,7 +252,7 @@
 				}
 				
 			    f.method="post";
-			    f.action="${pageContext.request.contextPath}/web/work/regChargedSw.do";
+			    f.action="<c:url value='/web/work/regChargedSw.do'/>";
 			    f.submit();
 			}
 			function cancel(){

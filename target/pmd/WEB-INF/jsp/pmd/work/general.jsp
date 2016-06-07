@@ -266,7 +266,7 @@
                   				return false;
                   			}
                   			f[0].method="post";
-  	  			    	    f[0].action="${pageContext.request.contextPath}/web/work/generalFilter.do";
+  	  			    	    f[0].action="<c:url value='/web/work/generalFilter.do'/>";
   	  			    	    f[0].submit();
                   		}
                   	}
@@ -280,7 +280,7 @@
                   				return false;
                   			}
                   			f[0].method="post";
-  	  			    	    f[0].action="${pageContext.request.contextPath}/web/work/generalFilter.do";
+  	  			    	    f[0].action="<c:url value='/web/work/generalFilter.do'/>";
   	  			    	    f[0].submit();
                   		}
                   	}
@@ -331,7 +331,7 @@
 				        	    }
 								  
 				        	    if(confirm("업로드 하시겠습니까?")){
-				        	        $("#ajaxform").attr("action", "${pageContext.request.contextPath}/web/work/excelUpload.do");
+				        	        $("#ajaxform").attr("action", "<c:url value='/web/work/excelUpload.do'/>");
 				        	   		var options = {
 				        	   			success : function(data) {
 				        	   				alert("모든 데이터가 업로드 되었습니다.");
