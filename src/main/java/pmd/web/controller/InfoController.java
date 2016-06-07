@@ -457,9 +457,9 @@ public class InfoController {
 		        	nextToken= st.nextToken();
 		        	if(nextToken!=null && !nextToken.equals("")){
 			        	if(tiktok%2==0){
-			        		swFile= PMDUtil.StringReplace(nextToken);
+			        		swFile= nextToken.replaceAll("\'", "");
 			        	}else{
-			        		swName= PMDUtil.StringReplace(nextToken);
+			        		swName= nextToken.replaceAll("\'", "");
 			        		messages.add(new SoftwareInfoVO(swName,"",swFile,"",userId,pcName,pcIp,pcOs,updateDate));
 			        	}
 		        	}
@@ -474,12 +474,12 @@ public class InfoController {
 		        boolean isExist= false; 
 		        for(SoftwareInfoVO s:installed) {
 		        	for(SoftwareInfoVO d:installedNoDup) {			// 목록 내에 중복된 소프트웨어 이름 제거
-		        		if(s.getSwName().replaceAll(" ", "").equals(d.getSwName().replaceAll(" ", ""))){
+		        		if(s.getSwName().replaceAll(" ", "").replaceAll("\\", "/").equals(d.getSwName().replaceAll(" ", ""))){
 		        			isExist= true;
 		        		}
 		        	}
 		        	for(SoftwareInfoVO i:installList){				// 이미 등록된 소프트웨어와 동일한 이름인 경우 추가X
-		        		if(s.getSwName().replaceAll(" ", "").equals(i.getSwName().replaceAll(" ", "")) && s.getPcName().equals(i.getPcName())){
+		        		if(s.getSwName().replaceAll(" ", "").replaceAll("\\", "/").equals(i.getSwName().replaceAll(" ", "")) && s.getPcName().equals(i.getPcName())){
 		        			isExist= true;
 		        		}
 		        	}
