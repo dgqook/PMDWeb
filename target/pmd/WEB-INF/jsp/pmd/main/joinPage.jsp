@@ -44,7 +44,7 @@
                 <span class="middle"></span>
                 <span class="bottom"></span>
               </div>
-                <a href="http://pmdc.kr" class="navbar-brand"> 
+                <a href="index.html" class="navbar-brand"> 
                  <b>PMD</b>
                 </a>
 

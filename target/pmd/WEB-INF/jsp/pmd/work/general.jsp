@@ -95,8 +95,8 @@
 			vertical-align:middle;
 		}
 		#mid{
-			padding-top:165px;
-		} 
+			padding-top:100px;
+		}
 		#top_menu_bucket{
 			width:100%;
 			font-size:0px;
@@ -163,7 +163,6 @@
 			padding-bottom:20px;
 			margin-bottom:10px;
 			border-bottom: 1px solid #7F9A67;
-			background-color: white;
 		}
 		
 		#table_div{
@@ -178,10 +177,11 @@
 		}
 		#searchForm{
 			display: inline-block;
+			margin-right:100px;
 		}
 		#fileForm{
 			display: inline-block; 
-			margin-left:50px;
+			margin-left:100px;
 		}
 		#excelFile{
 			display: inline-block; 
@@ -190,6 +190,8 @@
 		#excelBtn{
 			display: inline-block; 
 		}
+		
+		
 		
 		.inlineForms{
 			display: inline-block;
@@ -248,109 +250,10 @@
 					<div class="top_menu_item" onclick="goCompaniesinfo()">업체 현황</div> 
 					<div class="top_menu_item" onclick="goExpiryManage()">만료 임박 제품</div>
 					<div class="top_menu_item" onclick="goRegWorker()">직원계정 전환</div>
-					<div class="top_menu_item" onclick="goCoordyManage()">PMD 이용기간 관리</div>
+					<div class="top_menu_item" onclick="goCoordyManage()">코디 이용기간 관리</div>
 				</div>
 			</div>
 		</div>
-		
-		<div id="searchBar">
-			    <div id="searchForm">
-			    	<script type="text/javascript">
-			    	function doSearch1(f, evt){
-                  		var keyCode = evt.which?evt.which:event.keyCode;
-                  		var f= document.getElementsByName("registerForm1");
-                  		if(keyCode==13){
-                  			if(f[0].searchKeyword.value == null || f[0].searchKeyword.value == ""){
-                  				alert("검색어를 입력하세요.");
-                  				f[0].searchKeyword.focus();
-                  				return false;
-                  			}
-                  			f[0].method="post";
-  	  			    	    f[0].action="${pageContext.request.contextPath}/web/work/generalFilter.do";
-  	  			    	    f[0].submit();
-                  		}
-                  	}
-			    	function doSearch2(f, evt){
-                  		var keyCode = evt.which?evt.which:event.keyCode;
-                  		var f= document.getElementsByName("registerForm2");
-                  		if(keyCode==13){
-                  			if(f[0].searchKeyword.value == null || f[0].searchKeyword.value == ""){
-                  				alert("검색어를 입력하세요.");
-                  				f[0].searchKeyword.focus();
-                  				return false;
-                  			}
-                  			f[0].method="post";
-  	  			    	    f[0].action="${pageContext.request.contextPath}/web/work/generalFilter.do";
-  	  			    	    f[0].submit();
-                  		}
-                  	}
-			    	
-			    	function clearForm(f){
-			    		f.value= "";
-			    	}
-	                </script>
-			    	<form name="registerForm1" class="inlineForms">
-					   	업체명 : 
-					    <input class="textBox" type="text" name="searchKeyword" 
-										placeholder="검색어를 입력하세요.(enter)" onkeydown="doSearch1(this.form, event)"
-										value="${companyKeyword}" onclick="clearForm(this)">
-						<input type="hidden" name="searchType" value="company"/>
-					</form>
-					<form name="registerForm2" class="inlineForms">
-					   	대표자 : 
-					    <input class="textBox" type="text" name="searchKeyword" 
-										placeholder="검색어를 입력하세요.(enter)" onkeydown="doSearch2(this.form, event)"
-										value="${ownerKeyword}" onclick="clearForm(this)">
-						<input type="hidden" name="searchType" value="owner"/>
-					</form>
-				</div>
-				
-				<div id="fileForm">
-					<script>  
-						function checkFileType(filePath){
-							var fileFormat = filePath.split(".");
-							if(fileFormat.indexOf("xls") > -1){
-							    return true;
-							}else if(fileFormat.indexOf("xlsx") > -1){
-							    return true;
-							}else{
-							    return false;
-							}
-						}
-					
-						function check(){
-					          var formData = new FormData();
-					        	  
-				        	  var file = $("#excelFile").val();
-				        	    if(file == "" || file == null){
-				        	        alert("파일을 선택해주세요.");
-				        	        return false;
-				        	    }else if(!checkFileType(file)){
-				        	        alert("엑셀 파일만 업로드 해주세요.");
-				        	        return false;
-				        	    }
-								  
-				        	    if(confirm("업로드 하시겠습니까?")){
-				        	        $("#ajaxform").attr("action", "${pageContext.request.contextPath}/web/work/excelUpload.do");
-				        	   		var options = {
-				        	   			success : function(data) {
-				        	   				alert("모든 데이터가 업로드 되었습니다.");
-				        	   				$("#ajax-content").html(data);
-				        	   			},
-				        	   			type : "POST"
-				        	   		};
-				        	   		$('#ajaxform').ajaxSubmit(options);
-				        	    }
-					          
-						};
-					</script>  
-					<form id="ajaxform" role="form" action="" method="post" enctype="multipart/form-data">
-							<input id="excelFile" type="file" name="excelFile" />
-							<input id="excelBtn" type="button" value="엑셀 업로드" onclick="check()"/>
-					</form>
-				
-				</div>
-			</div>
 	</div>
 	<div id="mid">
 		<div id="mid_wrap">
@@ -405,8 +308,102 @@
 		        table.draw(data, {showRowNumber: false, width: '100%', height: '100%',allowHtml:true});
 		      }
 		    </script>
-		    
-				
+		    <div id="searchBar">
+			    <div id="searchForm">
+			    	<script type="text/javascript">
+			    	function doSearch1(f, evt){
+                  		var keyCode = evt.which?evt.which:event.keyCode;
+                  		var f= document.getElementsByName("registerForm1");
+                  		if(keyCode==13){
+                  			if(f[0].searchKeyword.value == null || f[0].searchKeyword.value == ""){
+                  				alert("검색어를 입력하세요.");
+                  				f[0].searchKeyword.focus();
+                  				return false;
+                  			}
+                  			f[0].method="post";
+  	  			    	    f[0].action="${pageContext.request.contextPath}/web/work/generalFilter.do";
+  	  			    	    f[0].submit();
+                  		}
+                  	}
+			    	function doSearch2(f, evt){
+                  		var keyCode = evt.which?evt.which:event.keyCode;
+                  		var f= document.getElementsByName("registerForm2");
+                  		if(keyCode==13){
+                  			if(f[0].searchKeyword.value == null || f[0].searchKeyword.value == ""){
+                  				alert("검색어를 입력하세요.");
+                  				f[0].searchKeyword.focus();
+                  				return false;
+                  			}
+                  			f[0].method="post";
+  	  			    	    f[0].action="${pageContext.request.contextPath}/web/work/generalFilter.do";
+  	  			    	    f[0].submit();
+                  		}
+                  	}
+			    	
+			    	function clearForm(f){
+			    		f.value= "";
+			    	}
+	                </script>
+			    	<form name="registerForm1" class="inlineForms">
+					   	업체명 : 
+					    <input class="textBox" type="text" name="searchKeyword" 
+										placeholder="검색어를 입력하세요.(enter)" onkeydown="doSearch1(this.form, event)"
+										value="${companyKeyword}" onclick="clearForm(this)">
+						<input type="hidden" name="searchType" value="company"/>
+					</form>
+					<form name="registerForm2" class="inlineForms">
+					   	대표자 : 
+					    <input class="textBox" type="text" name="searchKeyword" 
+										placeholder="검색어를 입력하세요.(enter)" onkeydown="doSearch2(this.form, event)"
+										value="${ownerKeyword}" onclick="clearForm(this)">
+						<input type="hidden" name="searchType" value="owner"/>
+					</form>
+				</div>
+				<div id="fileForm">
+					<script>  
+						function checkFileType(filePath){
+							var fileFormat = filePath.split(".");
+							if(fileFormat.indexOf("xls") > -1){
+							    return true;
+							}else if(fileFormat.indexOf("xlsx") > -1){
+							    return true;
+							}else{
+							    return false;
+							}
+						}
+					
+						function check(){
+					          var formData = new FormData();
+					        	  
+				        	  var file = $("#excelFile").val();
+				        	    if(file == "" || file == null){
+				        	        alert("파일을 선택해주세요.");
+				        	        return false;
+				        	    }else if(!checkFileType(file)){
+				        	        alert("엑셀 파일만 업로드 해주세요.");
+				        	        return false;
+				        	    }
+								  
+				        	    if(confirm("업로드 하시겠습니까?")){
+				        	        $("#ajaxform").attr("action", "${pageContext.request.contextPath}/web/work/excelUpload.do");
+				        	   		var options = {
+				        	   			success : function(data) {
+				        	   				alert("모든 데이터가 업로드 되었습니다.");
+				        	   				$("#ajax-content").html(data);
+				        	   			},
+				        	   			type : "POST"
+				        	   		};
+				        	   		$('#ajaxform').ajaxSubmit(options);
+				        	    }
+					          
+						};
+					</script>  
+					<form id="ajaxform" role="form" action="" method="post" enctype="multipart/form-data">
+							<input id="excelFile" type="file" name="excelFile" />
+							<input id="excelBtn" type="button" value="엑셀 업로드" onclick="check()"/>
+					</form>
+				</div>
+				</div>
 			<div id="table_div"></div>
 			
 		</div>

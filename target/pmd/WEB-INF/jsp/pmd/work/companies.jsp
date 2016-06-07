@@ -257,7 +257,7 @@
 					<div class="top_menu_item" onclick="goCompaniesinfo()">업체 현황</div> 
 					<div class="top_menu_item" onclick="goExpiryManage()">만료 임박 제품</div>
 					<div class="top_menu_item" onclick="goRegWorker()">직원계정 전환</div>
-					<div class="top_menu_item" onclick="goCoordyManage()">PMD 이용기간 관리</div>
+					<div class="top_menu_item" onclick="goCoordyManage()">코디 이용기간 관리</div>
 				</div>
 			</div>
 		</div>
