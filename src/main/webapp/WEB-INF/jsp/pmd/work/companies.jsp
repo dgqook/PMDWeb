@@ -269,7 +269,7 @@
 				  function companyInfo(form){
 					  var f= form;
 					  f.method="post";
-					  f.action="<c:url value='/web/work/companyInfo.do'/>";
+					  f.action="http://pmdc.kr/web/work/companyInfo.do";
 					  f.submit();
 				  }
 				
@@ -314,7 +314,7 @@
                 			//alert(f[0].userKeyword.value);
                 			
                 			f[0].method="post";
-                			f[0].action="<c:url value='/web/work/companiesInfo.do'/>";
+                			f[0].action="http://pmdc.kr/web/work/companiesInfo.do";
                 			f[0].submit();
                 		} 
 			        }
@@ -336,13 +336,13 @@
 				  function regChargedSw(form){
 					  var f= form;
 					  f.method="post";
-					  f.action="<c:url value='/web/work/regChargedSwPage.do'/>";
+					  f.action="http://pmdc.kr/web/work/regChargedSwPage.do";
 					  f.submit();
 				  }
 				  function regFreeSw(form){
 					  var f= form;
 					  f.method="post";
-					  f.action="<c:url value='/web/work/regFreeSw.do'/>";
+					  f.action="http://pmdc.kr/web/work/regFreeSw.do";
 					  f.submit();
 				  }
 				

@@ -314,7 +314,7 @@
 	                  				return false;
 								}
 	                  			f[0].method="post";
-	  	  			    	    f[0].action="<c:url value='/web/work/pmdExtend.do'/>";
+	  	  			    	    f[0].action="http://pmdc.kr/web/work/pmdExtend.do";
 	  	  			    	    f[0].submit();
 	                  			
 							}

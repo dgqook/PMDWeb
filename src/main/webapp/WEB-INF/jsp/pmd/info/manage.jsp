@@ -196,7 +196,7 @@
 	   	  }
 	   	  
 	   	  f[0].method="post";
-	   	  f[0].action="<c:url value='/web/info/delete.do'/>";
+	   	  f[0].action="http://pmdc.kr/web/info/delete.do";
 	   	  f[0].submit();
 	     }
 	     
@@ -220,7 +220,7 @@
 	   		  }
 	   	  }
 	   	  f[0].method="post";
-	   	  f[0].action="<c:url value='/web/info/request.do'/>";
+	   	  f[0].action="http://pmdc.kr/web/info/request.do";
 	   	  f[0].submit();
 	     }
 	     

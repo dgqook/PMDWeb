@@ -239,7 +239,7 @@
 				  var f= form;
 				  if(confirm("선택한 계정을 직원용 계정으로 전환하시겠습니까?")) {
 					  f.method="post";
-					  f.action="<c:url value='/web/work/regWorker.do'/>";
+					  f.action="http://pmdc.kr/web/work/regWorker.do";
 					  f.submit();
 				  }
 				}

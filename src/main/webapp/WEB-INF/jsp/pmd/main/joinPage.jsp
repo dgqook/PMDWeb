@@ -126,7 +126,7 @@
                 <div class="panel">
                     <div class="panel-heading"></div>
                     <div class="panel-body">
-                        <form id="joinForm" action="<c:url value='/web/main/createAccount.do'/>">
+                        <form id="joinForm" action="http://pmdc.kr/web/main/createAccount.do">
                         	<h3>가입약관</h3>
                             <fieldset>
                                 <h4><b>이용약관</b></h4>

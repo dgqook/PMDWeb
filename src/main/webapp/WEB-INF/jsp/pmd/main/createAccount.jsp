@@ -177,7 +177,7 @@
 			
 			if(blankCheck()){
 				f[0].method="post";
-				f[0].action="<c:url value='/web/main/createAccount.do'/>";
+				f[0].action="http://pmdc.kr/web/main/createAccount.do";
 				f[0].submit();
 			}
 		}

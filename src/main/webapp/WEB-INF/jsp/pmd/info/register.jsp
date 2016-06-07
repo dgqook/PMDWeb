@@ -229,7 +229,7 @@
     				return false;
     			}
     			f[0].method="post";
-		    	    f[0].action="<c:url value='/web/info/registerPage.do'/>";
+		    	    f[0].action="http://pmdc.kr/web/info/registerPage.do";
 		    	    f[0].submit();
     		}
     	}
@@ -297,7 +297,7 @@ $(function(){
     	  }
     	  
     	  f[0].method="post";
-    	  f[0].action="<c:url value='/web/info/register.do'/>";
+    	  f[0].action="http://pmdc.kr/web/info/register.do";
     	  f[0].submit();
       }
     	
