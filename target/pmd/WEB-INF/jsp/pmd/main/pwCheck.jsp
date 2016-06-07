@@ -83,7 +83,7 @@
 				return false;
 			}
 			f[0].method="post";
-	 	    f[0].action="<c:url value='/web/main/modUserInfoPage.do'/>";
+	 	    f[0].action="${pageContext.request.contextPath}/web/main/modUserInfoPage.do";
 	 	    f[0].submit();
     	}
       

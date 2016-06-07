@@ -326,7 +326,7 @@
 	                  				return false;
 	                  			}
 	                  			f[0].method="post";
-	  	  			    	    f[0].action="<c:url value='/web/info/registerPage.do'/>";
+	  	  			    	    f[0].action="${pageContext.request.contextPath}/web/info/registerPage.do";
 	  	  			    	    f[0].submit();
 	                  		}
 	                  	}
@@ -381,7 +381,7 @@
 	  			    	  }
 	  			    	  
 	  			    	  f[0].method="post";
-	  			    	  f[0].action="<c:url value='/web/info/register.do'/>";
+	  			    	  f[0].action="${pageContext.request.contextPath}/web/info/register.do";
 	  			    	  f[0].submit();
 	  			      }
 	                  	

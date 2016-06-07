@@ -113,7 +113,7 @@
 			}
 			
 			f[0].method="post";
-			f[0].action="<c:url value='/web/main/changePassword.do'/>";
+			f[0].action="${pageContext.request.contextPath}/web/main/changePassword.do";
 			f[0].submit();
 		}
 		

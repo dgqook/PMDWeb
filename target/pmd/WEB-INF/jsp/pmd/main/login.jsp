@@ -108,7 +108,7 @@
    			loginForm[0].userPw.value= "${userPw}";
    			loginForm[0].autoLogin.value="auto";
    			loginForm[0].method="post";
-   			loginForm[0].action="<c:url value='/web/main/login.do'/>";
+   			loginForm[0].action="${pageContext.request.contextPath}/web/main/login.do";
    			loginForm[0].submit();
    		} 
    	}
@@ -125,7 +125,7 @@
    		}
    		
    		f.method="post";
-   		f.action="<c:url value='/web/main/login.do'/>";
+   		f.action="${pageContext.request.contextPath}/web/main/login.do";
    		f.submit();
    	}
    	function doKeyLogin_loginPage(f, evt){

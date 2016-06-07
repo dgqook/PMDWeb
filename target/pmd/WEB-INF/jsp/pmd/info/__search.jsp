@@ -275,7 +275,7 @@
 	                  				return false;
 	                  			}
 	                  			f[0].method="post";
-	  	  			    	    f[0].action="<c:url value='/web/info/search.do'/>";
+	  	  			    	    f[0].action="${pageContext.request.contextPath}/web/info/search.do";
 	  	  			    	    f[0].submit();
 	                  		}
 	                  	}
