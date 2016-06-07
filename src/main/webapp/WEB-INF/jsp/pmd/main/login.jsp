@@ -131,7 +131,7 @@
    	function doKeyLogin_loginPage(f, evt){
    		var keyCode = evt.which?evt.which:event.keyCode;
    		if(keyCode==13){
-   			doLogin(f);
+   			doLogin_loginPage(f);
    		}
    	}
      </script>
