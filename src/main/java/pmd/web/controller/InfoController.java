@@ -20,6 +20,7 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.swing.plaf.multi.MultiLabelUI;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -407,13 +408,19 @@ public class InfoController {
      * @throws Exception																							*
      ************************************************************************************************/
     @RequestMapping(value="/web/info/updateSwInfo.do")
-    public void updateSwInfo(HttpServletRequest request, HttpServletResponse response, CommandMap commandMap) throws Exception{
+    public ModelAndView updateSwInfo(HttpServletRequest request, HttpServletResponse response, CommandMap commandMap) throws Exception{
     	request. setCharacterEncoding("UTF-8");
+    	ModelAndView mv= new ModelAndView("/info/updateSwInfo");
+    	String logging= "";
     	
     	if(PMDUtil.LOG_ENABLE) pmd.getParameterLog(commandMap);	
     	
+    	logging+= "Connected\n";
+    	
     	String message= request.getParameter("message");
     	Map<String,Object> paramMap= new HashMap<String,Object>();
+    	
+    	logging+= "Get Parameter Message\n";
     	
     	String userId= null;
     	String pcIp= null;
@@ -427,6 +434,9 @@ public class InfoController {
     	ArrayList<SoftwareInfoVO> installedNoDup= new ArrayList<SoftwareInfoVO>();
     	Map<String,Object> resultMap= null;
     	if(message!=null && !message.equals("")){
+    		
+    		logging+="Message is identified\n";
+    		
 	        StringTokenizer st= new StringTokenizer(message,"*");
 	        if(st.hasMoreTokens()) {
 	        	userId= st.nextToken();
@@ -438,6 +448,9 @@ public class InfoController {
 	        if(st.hasMoreTokens()) pcOs= st.nextToken();
 	        if(st.hasMoreTokens()) updateDate= st.nextToken();
 	        if(st.hasMoreTokens() && ((String)resultMap.get("checkSuccess")).equals("false")) {
+	        	
+	        	logging+="ID Validation\n";
+	        	
 		        int tiktok= 0;
 		        String nextToken= "";
 		        while(st.hasMoreTokens()){
@@ -453,7 +466,7 @@ public class InfoController {
 		        	tiktok++;
 		        }
 		        ArrayList<SoftwareInfoVO> installList= infoService.getInstalledSoftware(paramMap);
-
+		        logging+="Compare with installList\n";
 		        for(int i=0; i<messages.size(); i++)
 		        	if(!messages.get(i).equals("")) {
 		        		installed.add(new SoftwareInfoVO(messages.get(i).getSwName(),messages.get(i).getSwFile(),userId,pcName,pcIp,pcOs,updateDate));
@@ -477,9 +490,13 @@ public class InfoController {
 		        if(installedNoDup.size()>0){
 			        paramMap.put("list", installedNoDup);
 			        infoService.updateUserPcSwList(paramMap);
+			        logging+="Update software Information\n";
 		        }
 	        }
     	}
+    	pmd.logging(logging);
+    	mv.addObject("result", "It works!");
+    	return mv;
     }
     
     /************************************************************************************************
