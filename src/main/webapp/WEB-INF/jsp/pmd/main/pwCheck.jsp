@@ -83,7 +83,7 @@
 				return false;
 			}
 			f[0].method="post";
-	 	    f[0].action="http://pmdc.kr/web/main/modUserInfoPage.do";
+	 	    f[0].action="<c:url value='/web/main/modUserInfoPage.do'/>";
 	 	    f[0].submit();
     	}
       
@@ -123,7 +123,7 @@
 	      		return false;
 	      	}
 	      	f[0].method="post";
-	  		f[0].action="http://pmdc.kr/web/main/findAccount.do";
+	  		f[0].action="<c:url value='/web/main/findAccount.do'/>";
 	  		f[0].submit();
 	      }
 	      function servletMessage(){

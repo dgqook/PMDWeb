@@ -239,7 +239,7 @@
 				  var f= form;
 				  if(confirm("사용 기간을 연장하시겠습니까?")) {
 					  f.method="post";
-					  f.action="http://pmdc.kr/web/work/extendPage.do";
+					  f.action="<c:url value='/web/work/extendPage.do'/>";
 					  f.submit();
 				  }
 				}

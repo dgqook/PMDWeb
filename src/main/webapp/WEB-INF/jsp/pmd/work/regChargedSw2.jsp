@@ -258,7 +258,7 @@
 				}
 				
 			    f.method="post";
-			    f.action="http://pmdc.kr/web/work/regChargedSw.do";
+			    f.action="<c:url value='/web/work/regChargedSw.do'/>";
 			    f.submit();
 			}
 			function cancel(){
