@@ -453,25 +453,28 @@ public class InfoController {
 		        	tiktok++;
 		        }
 		        ArrayList<SoftwareInfoVO> installList= infoService.getInstalledSoftware(paramMap);
+		        ArrayList<SoftwareInfoVO> installListTemp= new ArrayList<SoftwareInfoVO>(installList);
+		        int idx= 0;
 
 		        for(int i=0; i<messages.size(); i++)
 		        	if(!messages.get(i).equals("")) {
 		        		installed.add(new SoftwareInfoVO(messages.get(i).getSwName(),messages.get(i).getSwFile(),userId,pcName,pcIp,pcOs,updateDate));
 		        	}
 		        boolean isExist= false; 
-		        for(SoftwareInfoVO s:installed) {
+		        for(SoftwareInfoVO s:installListTemp) {
 		        	for(SoftwareInfoVO d:installedNoDup) {			// 목록 내에 중복된 소프트웨어 이름 제거
-		        		if(s.getSwName().replaceAll(" ", "").replaceAll("\\", "/").equals(d.getSwName().replaceAll(" ", ""))){
+		        		if(s.getSwName().replaceAll(" ", "").equals(d.getSwName().replaceAll(" ", ""))){
 		        			isExist= true;
 		        		}
 		        	}
-		        	for(SoftwareInfoVO i:installList){				// 이미 등록된 소프트웨어와 동일한 이름인 경우 추가X
-		        		if(s.getSwName().replaceAll(" ", "").replaceAll("\\", "/").equals(i.getSwName().replaceAll(" ", "")) && s.getPcName().equals(i.getPcName())){
+		        	for(SoftwareInfoVO i:installListTemp){				// 이미 등록된 소프트웨어와 동일한 이름인 경우 추가X
+		        		if(s.getSwName().replaceAll(" ", "").equals(i.getSwName().replaceAll(" ", "")) && s.getPcName().equals(i.getPcName())){
 		        			isExist= true;
 		        		}
 		        	}
-		        	if(!isExist) installedNoDup.add(new SoftwareInfoVO(s.getSwName(),userId,pcName,pcIp,pcOs,updateDate));
+		        	if(!isExist) installedNoDup.add(new SoftwareInfoVO(installList.get(idx).getSwName(),userId,pcName,pcIp,pcOs,updateDate));
 		        	isExist= false;
+		        	idx++;
 		        }       		
 		        
 		        if(installedNoDup.size()>0){
