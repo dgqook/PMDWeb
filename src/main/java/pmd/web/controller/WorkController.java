@@ -1046,6 +1046,7 @@ public class WorkController {
     		
     		///// 페이지로 반환할 리스트 채우기 /////
     		for(UserInfoVO u: rawUserList){
+    			
     			///// 영구 라이선스 제외 /////
     			if(!u.getUserExpiryDate().equals("")){
 	    			expiryDate= pmd.stringToDate(u.getUserExpiryDate());

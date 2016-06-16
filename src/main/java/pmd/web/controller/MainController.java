@@ -273,7 +273,7 @@ public class MainController {
        //pmd.logging( ""+map.get("loginSuccess").equals("true") );
        // pmd.logging( ""+(restOfExpiry != null) );
         pmd.logging("saveId : "+saveId);
-        
+        pmd.logging(""+restOfExpiry);
         
         if(map.containsKey("loginSuccess") && map.get("loginSuccess").equals("true")
         		&& restOfExpiry != null && !restOfExpiry.equals("false")){
@@ -774,7 +774,7 @@ public class MainController {
         
         //이름: 알파벳 대/소문자 및 한글 입력만 가능하다.
         if(validate) {
-        	validate = (Pattern.matches("^[a-zA-Z가-힣]*$", userName))? (true) : (false) ;  
+        	validate = (Pattern.matches("^[a-zA-Z가-힣0-9]*$", userName))? (true) : (false) ;  
 	        if(!validate) {
 	        	message= "이름 입력에 문제가 있습니다.\n계속해서 문제가 발생하는 경우 hk@m-soft.co.kr로 문의해주세요.";
 	        	mv = new ModelAndView("/main/createAccount");
