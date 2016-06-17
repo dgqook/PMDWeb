@@ -577,7 +577,152 @@ public class InfoController {
     	/*----------------------------------------------*/
     	return mv;
     } 
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+    // 신규 견적 요청 관련
+    
+    /*******************************************************************************************************
+     * 관리 페이지 > 등록 페이지																							*
+     * @param commandMap	                                           													*
+     * @return																												*
+     * @throws Exception																									*
+     *******************************************************************************************************/
+    @RequestMapping(value="/web/info/estimatePage.do")
+    public ModelAndView goEstimatePage(HttpServletRequest request, HttpServletResponse response, CommandMap commandMap) throws Exception {
+    	/*----------------------------------------------------------------*/
+    	/*					기본 반환 페이지 설정 --				  */
+    	/*----------------------------------------------------------------*/
+    	ModelAndView mv = new ModelAndView("/info/estimate");
+    	/*----------------------------------------------------------------*/
+    	/*					-- 기본 반환 페이지 설정				  */
+    	/*----------------------------------------------------------------*/    	
     	
+    	/*------------------------------------------------------------------*/
+    	/*							파라미터 체크 --			  			*/
+    	/*------------------------------------------------------------------*/
+    	if(PMDUtil.LOG_ENABLE) pmd.getParameterLog(commandMap);	
+    	/*------------------------------------------------------------------*/
+    	/*							-- 파라미터 체크			  			*/
+    	/*------------------------------------------------------------------*/    	
+    	
+    	/*----------------------------------------------*/
+    	/*				세션 가져오기 --				*/
+    	/*----------------------------------------------*/
+    	HttpSession session= request.getSession();
+    	/*----------------------------------------------*/
+    	/*				-- 세션 가져오기				*/
+    	/*----------------------------------------------*/    	
+    	
+    	/*------------------------------------------------------------*/
+    	/*				현재 사용자 정보 가져오기 --			  */
+    	/*------------------------------------------------------------*/
+    	UserInfoVO userInfo= pmd.loginCheck(session);
+    	/*------------------------------------------------------------*/
+    	/*				-- 현재 사용자 정보 가져오기			  */
+    	/*------------------------------------------------------------*/
+    	
+    	/*------------------------------------------*/
+    	/*				로그인 체크 -- 			*/
+    	/*------------------------------------------*/
+    	if(userInfo == null){	
+    		////////////// 로그인실패 //////////////
+    		mv.setViewName("/main/login");
+    		response.sendRedirect(PMDUtil.PMD_URL);
+    		
+    	}else{	
+    		////////////// 로그인 성공 //////////////
+    		/*--------------------------------------------------------------------------*/
+    		/*						 	기능 구현 부분 --							*/
+    		/*--------------------------------------------------------------------------*/
+    	
+    		Map<String, Object> paramMap= new HashMap<String,Object>();
+    		String searchKeyword= request.getParameter("searchKeyword");
+    		if(searchKeyword == null || searchKeyword.equals("")){
+	    		ArrayList<SoftwareInfoVO> chargedList= new ArrayList<SoftwareInfoVO>();
+	    		session.setAttribute("chargedList", chargedList);
+    		} else {
+    			paramMap.put("searchKeyword", searchKeyword);
+    			ArrayList<SoftwareInfoVO> chargedList= infoService.getChargedSoftwareByPk(paramMap);
+    			session.setAttribute("chargedList", chargedList);
+    		}
+    		
+    		/*--------------------------------------------------------------------------*/
+    		/*						 	-- 기능 구현 부분							*/
+    		/*--------------------------------------------------------------------------*/
+    	}
+    	/*----------------------------------------------*/
+    	/*				-- 로그인 체크	 			*/
+    	/*----------------------------------------------*/
+    	return mv;
+    }
+    
+    
+    /*******************************************************************************************************
+     * 관리 페이지 > 등록 페이지																							*
+     * @param commandMap	                                           													*
+     * @return																												*
+     * @throws Exception																									*
+     *******************************************************************************************************/
+    @RequestMapping(value="/web/info/estimate.do")
+    public ModelAndView doEstimate(HttpServletRequest request, HttpServletResponse response, CommandMap commandMap) throws Exception {
+    	/*----------------------------------------------------------------*/
+    	/*					기본 반환 페이지 설정 --				  */
+    	/*----------------------------------------------------------------*/
+    	ModelAndView mv = new ModelAndView("/info/manage");
+    	/*----------------------------------------------------------------*/
+    	/*					-- 기본 반환 페이지 설정				  */
+    	/*----------------------------------------------------------------*/    	
+    	
+    	/*------------------------------------------------------------------*/
+    	/*							파라미터 체크 --			  			*/
+    	/*------------------------------------------------------------------*/
+    	if(PMDUtil.LOG_ENABLE) pmd.getParameterLog(commandMap);	
+    	/*------------------------------------------------------------------*/
+    	/*							-- 파라미터 체크			  			*/
+    	/*------------------------------------------------------------------*/    	
+    	
+    	/*----------------------------------------------*/
+    	/*				세션 가져오기 --				*/
+    	/*----------------------------------------------*/
+    	HttpSession session= request.getSession();
+    	/*----------------------------------------------*/
+    	/*				-- 세션 가져오기				*/
+    	/*----------------------------------------------*/    	
+    	
+    	/*------------------------------------------------------------*/
+    	/*				현재 사용자 정보 가져오기 --			  */
+    	/*------------------------------------------------------------*/
+    	UserInfoVO userInfo= pmd.loginCheck(session);
+    	/*------------------------------------------------------------*/
+    	/*				-- 현재 사용자 정보 가져오기			  */
+    	/*------------------------------------------------------------*/
+    	
+    	/*------------------------------------------*/
+    	/*				로그인 체크 -- 			*/
+    	/*------------------------------------------*/
+    	if(userInfo == null){	
+    		////////////// 로그인실패 //////////////
+    		mv.setViewName("/main/login");
+    		response.sendRedirect(PMDUtil.PMD_URL);
+    		
+    	}else{	
+    		////////////// 로그인 성공 //////////////
+    		/*--------------------------------------------------------------------------*/
+    		/*						 	기능 구현 부분 --							*/
+    		/*--------------------------------------------------------------------------*/
+    	
+    		
+    		/*--------------------------------------------------------------------------*/
+    		/*						 	-- 기능 구현 부분							*/
+    		/*--------------------------------------------------------------------------*/
+    	}
+    	/*----------------------------------------------*/
+    	/*				-- 로그인 체크	 			*/
+    	/*----------------------------------------------*/
+    	return mv;
+    }
+    	
+    //----------------------------------------------------------------------------------------------------------------------------------------------------
+    
     /*******************************************************************************************************
      * 관리 페이지 > 등록 페이지																							*
      * @param commandMap	                                           													*
@@ -635,8 +780,8 @@ public class InfoController {
     		
     		Map<String, Object> paramMap= new HashMap<String,Object>();
     		String searchKeyword= request.getParameter("searchKeyword");
-    		if(searchKeyword == null || searchKeyword.equals("") || searchKeyword.equals("all")){
-	    		ArrayList<SoftwareInfoVO> chargedList= infoService.getChargedSoftware(paramMap);
+    		if(searchKeyword == null || searchKeyword.equals("")){
+	    		ArrayList<SoftwareInfoVO> chargedList= new ArrayList<SoftwareInfoVO>();
 	    		session.setAttribute("chargedList", chargedList);
     		} else {
     			paramMap.put("searchKeyword", searchKeyword);
@@ -1100,8 +1245,8 @@ public class InfoController {
     		
     		Map<String, Object> paramMap= new HashMap<String,Object>();
     		String searchKeyword= request.getParameter("searchKeyword");
-    		if(searchKeyword == null || searchKeyword.equals("") || searchKeyword.equals("all")){
-	    		ArrayList<SoftwareInfoVO> chargedList= infoService.getChargedSoftware(paramMap);
+    		if(searchKeyword == null || searchKeyword.equals("") ){
+	    		ArrayList<SoftwareInfoVO> chargedList= new ArrayList<SoftwareInfoVO>();
 	    		session.setAttribute("chargedList", chargedList);
     		} else {
     			paramMap.put("searchKeyword", searchKeyword);

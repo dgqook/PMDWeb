@@ -79,7 +79,8 @@
                               	<div style="margin-bottom:10px;">
 								<input type="button" class="btn btn-primary" onclick="swRegister()" value="제품 등록">
 								<input type="button" class="btn btn-primary" onclick="swDelete()" value="선택 삭제">
-								<input type="button" class="btn btn-primary" onclick="swRequest()" value="견적 요청">
+								<input type="button" class="btn btn-primary" onclick="swRequest()" value="보유 제품 연장">
+								<input type="button" class="btn btn-primary" onclick="swEstimate()" value="신규 제품 견적">
 								</div>
 								
 								<div id="table_div"></div>
@@ -222,6 +223,10 @@
 	   	  f[0].method="post";
 	   	  f[0].action="${pageContext.request.contextPath}/web/info/request.do";
 	   	  f[0].submit();
+	     }
+	     
+	     function swEstimate(){
+	    	 window.location.href="${pageContext.request.contextPath}/web/info/estimatePage.do";
 	     }
 	     
 	     $(document).ready(function(){
