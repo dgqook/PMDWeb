@@ -85,8 +85,6 @@
 										<!-- <input id="datePicker" class="form-control" type="text" name="expiryDate" 
 												placeholder="만료일자를 입력하세요." readonly="readonly" style="margin-top:10px;"> 
 											 -->
-										<input type="text" class="form-control" placeholder="만료일자를 입력하세요." id="dp1" name="expiryDate" readonly="readonly" style="margin-top:10px;">	 	
-										<input type="checkbox" name="permanent" value=""> 영구 라이센스
 										<input class="form-control" type="text" name="quantity"
 												placeholder="수량을 입력하세요." onkeyup="this.value=number_filter(this.value);" 
 												 style="margin-top:10px;">
@@ -279,16 +277,6 @@ $(function(){
     		  return false;
     	  }
     	  
-    	  if(f[0].permanent.checked){
-    		  f[0].permanent.value="on";
-    	  }else{
-    		 f[0].permanent.value="off";
-    		  if(f[0].expiryDate.value == null || f[0].expiryDate.value == ""){
-    			  alert("만료일자를 입력해주세요.");
-    			  f[0].expiryDate.focus();
-    			  return false;
-    		  }
-    	  }
     	  
     	  if(f[0].quantity==null || f[0].quantity.value==""){
     		  alert("수량을 입력해주세요.");

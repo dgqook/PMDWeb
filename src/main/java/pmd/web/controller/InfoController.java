@@ -711,6 +711,94 @@ public class InfoController {
     		/*--------------------------------------------------------------------------*/
     	
     		
+    		 // 이메일 관련
+        	
+    		Date nowDate = new Date();
+    		SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    		String nowDateString = transFormat.format(nowDate);
+    		
+    		String quantity= request.getParameter("quantity");
+    		
+    		String chk[] = request.getParameterValues("chk");
+    		Map<String,Object> paramMap= new HashMap<String,Object>();
+    		paramMap.put("userId", userInfo.getUserId());
+    		ArrayList<SoftwareInfoVO> chargedList= infoService.getChargedSoftware(paramMap);
+    		ArrayList<SoftwareInfoVO> requestList= new ArrayList<SoftwareInfoVO>();
+    		
+    		   		
+    		// 매칭된 보유 소프트웨어와 동일한 유료 소프트웨어 정보를 다시 추린다.
+    		for(String o:chk){
+    			for(SoftwareInfoVO c:chargedList){
+    				if(o.replaceAll(" ", "").equals(c.getSwName().replaceAll(" ", ""))){
+    					c.setOwnQuantity(quantity);
+    					requestList.add(c);
+    				}
+    			}
+    		}
+    		
+    		 // 메일 관련 정보
+	           String host = "smtp.worksmobile.com";
+	           final String username = PMDUtil.REQUEST_MAIL_ID;
+	           final String password = PMDUtil.REQUEST_MAIL_PW;		//TODO 웍스모바일 비밀번호
+	           
+	           
+	           // 메일 내용
+	           String subject = "[신규] PMD 견적 요청 - "+userInfo.getUserId()+" | "+nowDateString;
+	           String body = 	"일시: "+nowDateString+"\n"+
+			        		    "아이디: "+userInfo.getUserId()+"\n"+
+			        		    "이메일: "+userInfo.getUserEmail()+"\n"+
+			        		    "유선전화: "+userInfo.getUserTel()+"\n"+
+			        		    "휴대전화: "+userInfo.getUserHp()+"\n"+
+	        		   			"회사: "+userInfo.getUserCoName()+"\n"+
+	        		   			"회사주소: ("+userInfo.getUserCoZip()+") "+userInfo.getUserCoAddr()+"\n\n"+
+	        		   			"< 견적 내용 > ( [회사] 제품, 수량 )\n\n";
+	           
+	           for(SoftwareInfoVO s:requestList){
+	        	   body+="[ "+s.getSwVendor()+" ] ";
+	        	   body+=s.getSwName()+",   ";
+	        	   body+=s.getOwnQuantity()+"\n";
+	           }
+	           body+="\n\n본문에 있는 메일 주소로 견적 내용 보내주시면 됩니다.";
+	            
+	           Properties props = System.getProperties();
+	            
+	           props.put("mail.smtp.user" , username);
+	           props.put("mail.smtp.host", host);
+	           props.put("mail.smtp.port", "465");
+	           props.put("mail.smtp.starttls.enable", "true");
+	           props.put("mail.smtp.auth", "true");
+	           props.put("mail.smtp.debug", "true");
+	           props.put("mail.smtp.socketFactory.port", "465");
+	           props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+	           props.put("mail.smtp.socketFactory.fallback", "false");
+
+
+	           Session session2 = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
+	               String un=username;
+	               String pw=password;
+	               protected PasswordAuthentication getPasswordAuthentication() {
+	                   return new PasswordAuthentication(un, pw);
+	               }
+	           });
+	           session2.setDebug(PMDUtil.LOG_ENABLE); //for debug
+	           Message mimeMessage = new MimeMessage(session2);
+	           mimeMessage.setFrom(new InternetAddress(PMDUtil.REQUEST_MAIL_ID));
+	           //mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+	           
+	           InternetAddress[] toAddr= new InternetAddress[3];
+	           toAddr[0]= new InternetAddress(PMDUtil.REQUEST_MAIL_TO1);
+	           toAddr[1]= new InternetAddress(PMDUtil.REQUEST_MAIL_TO2);
+	           toAddr[2]= new InternetAddress(PMDUtil.REQUEST_MAIL_ID);
+	           mimeMessage.setRecipients(Message.RecipientType.TO, toAddr);
+	           
+	           mimeMessage.setSubject(subject);
+	           mimeMessage.setText(body);
+	           Transport.send(mimeMessage);
+	           
+	       	// --이메일 관련
+	           
+	           
+    		mv.addObject("servletMessage", "정상적으로 요청되었습니다. \n빠른 시일 내에 계정에 등록된 연락처 또는 이메일 주소로 답변 드리도록 하겠습니다. ");
     		/*--------------------------------------------------------------------------*/
     		/*						 	-- 기능 구현 부분							*/
     		/*--------------------------------------------------------------------------*/
@@ -1119,7 +1207,7 @@ public class InfoController {
 	           
 	           
 	           // 메일 내용
-	           String subject = "Coordy 견적 요청 - "+userInfo.getUserId()+" | "+nowDateString;
+	           String subject = "[연장] PMD 견적 요청 - "+userInfo.getUserId()+" | "+nowDateString;
 	           String body = 	"일시: "+nowDateString+"\n"+
 			        		    "아이디: "+userInfo.getUserId()+"\n"+
 			        		    "이메일: "+userInfo.getUserEmail()+"\n"+
@@ -1175,7 +1263,7 @@ public class InfoController {
 	           
 	       	// --이메일 관련
 	       	
-	       	mv.addObject("servletMessage","정상적으로 요청되었습니다. \n빠른 시일 내에 계정에 등록된 이메일 주소로  답변 드리도록 하겠습니다. ");
+	       	mv.addObject("servletMessage","정상적으로 요청되었습니다. \n빠른 시일 내에 계정에 등록된 연락처 또는 이메일 주소로 답변 드리도록 하겠습니다. ");
     		
 	       	/*--------------------------------------------------------------------------*/
     		/*						 	-- 기능 구현 부분							*/

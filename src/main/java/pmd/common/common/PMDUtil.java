@@ -29,6 +29,8 @@ public class PMDUtil {
 	//-------------------------------------------------------------------------------------
 	
 	public static final String PMD_URL= "";//"http://localhost:8080/pmd";
+	//public static final String REQUEST_MAIL_TO1= "dgqook@gmail.com";
+	//public static final String REQUEST_MAIL_TO2= "dfgr234@naver.com";
 	public static final String REQUEST_MAIL_TO1= "kjs@m-soft.co.kr";
 	public static final String REQUEST_MAIL_TO2= "ar@m-soft.co.kr";
 	public static final String REQUEST_MAIL_ID= "hk@m-soft.co.kr";
