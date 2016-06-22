@@ -77,6 +77,16 @@ public class InfoServiceImpl implements InfoService{
 	public void updateUserPcSwList(Map<String, Object> map) {
 		infoDAO.updateUserPcSwList(map);
 	}
+	
+	/**
+	 * pc 소프트웨어 목록 업로드 (제거된 프로그램 DB에서 삭제) by pmd client
+	 * @param map
+	 * @return
+	 */
+	@Override
+	public void deleteUserPcSwList(Map<String, Object> map) {
+		infoDAO.deleteUserPcSwList(map);
+	}
 
 	/**
 	 * 특정 키워드 정보를 갖는 유료 소프트웨어 목록 조회

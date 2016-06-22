@@ -408,12 +408,12 @@ public class InfoController {
      ************************************************************************************************/
     @RequestMapping(value="/web/info/updateSwInfo.do")
     public void updateSwInfo(HttpServletRequest request, HttpServletResponse response, CommandMap commandMap) throws Exception{
-    	request. setCharacterEncoding("UTF-8");
+    	request.setCharacterEncoding("UTF-8"); 										// 리퀘스트 메시지 인코딩 설정
     	
-    	if(PMDUtil.LOG_ENABLE) pmd.getParameterLog(commandMap);	
+    	if(PMDUtil.LOG_ENABLE) pmd.getParameterLog(commandMap);		// 파라미터 로그 출력
     	
-    	String message= request.getParameter("message");
-    	Map<String,Object> paramMap= new HashMap<String,Object>();
+    	String message= request.getParameter("message");						// message라는 이름으로 들어온 파라미터 내용 가져오기
+    	Map<String,Object> paramMap= new HashMap<String,Object>();		// 쿼리에 넣을 파라미터 맵 생성
     	
     	String userId= null;
     	String pcIp= null;
@@ -421,52 +421,119 @@ public class InfoController {
     	String pcOs= null;
     	String updateDate= null;
     	String swFile= null;
-    	String swName= null;
-    	ArrayList<SoftwareInfoVO> messages= new ArrayList<SoftwareInfoVO>();
-    	ArrayList<SoftwareInfoVO> installed= new ArrayList<SoftwareInfoVO>();
-    	ArrayList<SoftwareInfoVO> installedNoDup= new ArrayList<SoftwareInfoVO>();
-    	Map<String,Object> resultMap= null;
-    	if(message!=null && !message.equals("")){
-	        StringTokenizer st= new StringTokenizer(message,"*");
-	        if(st.hasMoreTokens()) {
-	        	userId= st.nextToken();
-	        	paramMap.put("userId", userId);
-	        	resultMap=mainService.doIdCheck(paramMap);
+    	String swName= null;															// 공통 데이터를 담을 변수 선언
+    	
+    	ArrayList<SoftwareInfoVO> messages= new ArrayList<SoftwareInfoVO>();	// 메시지 파라미터 내용을 분리해 담을 ArrayList
+    	ArrayList<SoftwareInfoVO> installed= new ArrayList<SoftwareInfoVO>();		// messages를 이용해 설치 프로그램 목록을 만들어 담을 ArrayList
+    	ArrayList<SoftwareInfoVO> installedNoDup= new ArrayList<SoftwareInfoVO>();		// 중복 제거 처리를 한 설치 프로그램 목록을 담을 ArrayList
+    	
+    	Map<String,Object> resultMap= null;			// 쿼리 결과를 받아올 맵
+    	if(message!=null && !message.equals("")){		// 메시지가 정상적으로 수신된 경우
+	        StringTokenizer st= new StringTokenizer(message,"*");	// 문자열을 * 기호가 나올 때 마다 잘라 토큰으로 만든다
+	        if(st.hasMoreTokens()) {	// 추가 토큰이 있는 경우 수행
+	        	userId= st.nextToken();									// 보내는 쪽의 형식을 그대로 받음, 첫 토큰은 사용자 아이디
+	        	paramMap.put("userId", userId);				
+	        	resultMap=mainService.doIdCheck(paramMap);	// 해당 아이디가 실제로 존재하는지 조회
 	        }
-	        if(st.hasMoreTokens()) pcIp= st.nextToken();
-	        if(st.hasMoreTokens()) pcName= st.nextToken().replaceAll("\'", "");
-	        if(st.hasMoreTokens()) pcOs= st.nextToken();
-	        if(st.hasMoreTokens()) updateDate= st.nextToken();
-	        if(st.hasMoreTokens() && ((String)resultMap.get("checkSuccess")).equals("false")) {
-		        int tiktok= 0;
-		        String nextToken= "";
-		        while(st.hasMoreTokens()){
-		        	nextToken= st.nextToken();
-		        	if(nextToken!=null && !nextToken.equals("")){
-			        	if(tiktok%2==0){
-			        		swFile= nextToken.replaceAll("\'", "");
-			        	}else{
-			        		swName= nextToken.replaceAll("\'", "");
-			        		messages.add(new SoftwareInfoVO(swName,"",swFile,"",userId,pcName,pcIp,pcOs,updateDate));
+	        if(st.hasMoreTokens()) pcIp= st.nextToken();			// 두 번째 토큰을 받음 (아이피)
+	        if(st.hasMoreTokens()) pcName= st.nextToken();		// 세 번째 토큰을 받음 (컴퓨터 이름)
+	        if(st.hasMoreTokens()) pcOs= st.nextToken();			// 네 번째 토큰을 받음 (컴퓨터 OS)
+	        if(st.hasMoreTokens()) updateDate= st.nextToken();	// 다섯 번째 토큰을 받음 (업데이트 시각)
+	        if(st.hasMoreTokens() && ((String)resultMap.get("checkSuccess")).equals("false")) {	// 이후 토큰은 전부 프로그램 관련
+		        int tiktok= 0;				// 프로그램 명과 확장자를 번갈아 보내도록 되어있어, 이를 순서대로 정리하기 위해 변수를 하나 선언함.
+		        String nextToken= "";	// 다음 토큰을 받을 문자열 변수
+		        while(st.hasMoreTokens()){		// 다음 토큰이 존재하지 않을 때 까지 반복
+		        	nextToken= st.nextToken();	// 다음 토큰을 nextToken 변수에 넣는다.
+		        	if(nextToken!=null && !nextToken.equals("")){		// 토큰 내용이 비어있지 않는 경우에만 실행
+			        	if(tiktok%2==0){				// 틱톡 값이 짝수인 경우
+			        		swFile= nextToken;		// 파일명 저장
+			        	}else{							// 틱톡 값이 홀수인 경우
+			        		swName= nextToken;	// 프로그램 이름 저장
+			        		messages.add(new SoftwareInfoVO(swName,swFile,userId,pcName,pcIp,pcOs,updateDate));	// messages에 내용 저장
 			        	}
 		        	}
-		        	tiktok++;
+		        	tiktok++;		// 틱톡 값 증가
 		        }
-		        ArrayList<SoftwareInfoVO> installList= infoService.getInstalledSoftware(paramMap);
-		        ArrayList<SoftwareInfoVO> installListTemp= new ArrayList<SoftwareInfoVO>(installList);
-		        int idx= 0;
-
-		        for(int i=0; i<messages.size(); i++)
-		        	if(!messages.get(i).equals("")) {
-		        		installed.add(new SoftwareInfoVO(messages.get(i).getSwName(),messages.get(i).getSwFile(),userId,pcName,pcIp,pcOs,updateDate));
+		      
+		        paramMap.put("pcName", pcName);
+		        ArrayList<SoftwareInfoVO> installList= infoService.getInstalledSoftware(paramMap); 	// DB에 입력된 설치 프로그램 목록 가져오기
+			        
+		        
+		        // 여기부터 새로 작성
+		        // installList (A) : DB에 입력된 설치 프로그램
+		        // messages (B) : 새로 입력 받은 설치 프로그램
+		        // 아래 내용 -> 	A와 B 간의 중복 소프트웨어 정보 제거 (DB 이중 등록 방지)
+		        //					B엔 없지만 A엔 있는 소프트웨어의 경우, B에서 해당 소프트웨어 정보 삭제
+		        
+		        ArrayList<SoftwareInfoVO> updateList= new ArrayList<SoftwareInfoVO>();	// 업데이트 할 소프트웨어 정보
+		        ArrayList<SoftwareInfoVO> existList= new ArrayList<SoftwareInfoVO>();		// 두 목록에 공통적으로 존재하는 소프트웨어 정보
+		        ArrayList<SoftwareInfoVO> deleteList= new ArrayList<SoftwareInfoVO>();	// DB에서 삭제할 소프트웨어 정보
+		        
+		        String temp1= "";
+		        String temp2= "";
+		        boolean isExist= false;
+		        
+		        for(SoftwareInfoVO n:messages){
+		        	for(SoftwareInfoVO o:installList){
+		        		// 소프트웨어 명 가져오기
+		        		temp1= o.getSwName();
+		        		temp2= n.getSwName();
+		        		
+		        		// 공백 제거
+		        		temp1.replaceAll(" ", "");
+		        		temp2.replaceAll(" ", "");
+		        		
+		        		// 만약 이름이 같다면 (기존 DB정보에 이미 들어가 있는 내용이라면)
+		        		if(temp1.equals(temp2) && o.getPcName().replaceAll(" ", "").equals(pcName.replaceAll(" ", ""))) {
+		        			isExist= true;
+		        			existList.add(o);
+		        		}
 		        	}
-		        boolean isExist= false; 
+	        		
+	        		if(isExist == false){		// DB에 존재하지 않던 프로그램은 updateList에 추가
+	        			updateList.add(
+        					new SoftwareInfoVO(n.getSwName(), n.getSwFile(), n.getUserId(), n.getPcName(), n.getPcIp(), n.getPcOs(), n.getUpdateDate() )
+	        				);
+	        		}
+	        		isExist= false;
+		        }
+		        
+		        isExist= false;
+		        for(SoftwareInfoVO o:installList){
+		        	for(SoftwareInfoVO e:existList){
+		        		temp1= o.getSwName();
+		        		temp2= e.getSwName();
+		        		temp1.replaceAll(" ", "");
+		        		temp2.replaceAll(" ", "");
+		        		
+		        		if(temp1.equals(temp2) && o.getPcName().replaceAll(" ", "").equals(pcName.replaceAll(" ", ""))){
+		        			isExist= true;
+		        		}
+		        	}
+		        	if(isExist == false){
+		        		deleteList.add(o);
+		        	}
+		        	isExist= false;
+		        }
+		        
+		        
+		        
+		        
+		        
+		        /*
+		        ArrayList<SoftwareInfoVO> installListTemp= new ArrayList<SoftwareInfoVO>(installList);	// 비교용 ArrayList
+		        int idx= 0;	// 인덱스
+
+		        
+		        
+		        //boolean isExist= false; 
 		        for(SoftwareInfoVO s:installListTemp) {
 		        	for(SoftwareInfoVO d:installedNoDup) {			// 목록 내에 중복된 소프트웨어 이름 제거
 		        		if(s.getSwName().replaceAll(" ", "").equals(d.getSwName().replaceAll(" ", ""))){
 		        			isExist= true;
 		        		}
 		        	}
+		        	
 		        	for(SoftwareInfoVO i:installListTemp){				// 이미 등록된 소프트웨어와 동일한 이름인 경우 추가X
 		        		if(s.getSwName().replaceAll(" ", "").equals(i.getSwName().replaceAll(" ", "")) && s.getPcName().equals(i.getPcName())){
 		        			isExist= true;
@@ -474,12 +541,24 @@ public class InfoController {
 		        	}
 		        	if(!isExist) installedNoDup.add(new SoftwareInfoVO(installList.get(idx).getSwName(),userId,pcName,pcIp,pcOs,updateDate));
 		        	isExist= false;
-		        	idx++;
-		        }       		
+		        	idx++;		// 인덱스 증가
+		        }
+		        
+		        
 		        
 		        if(installedNoDup.size()>0){
 			        paramMap.put("list", installedNoDup);
 			        infoService.updateUserPcSwList(paramMap);
+		        }
+		        */
+		        
+		        if(updateList.size()>0){
+		        	paramMap.put("list", updateList);
+			        infoService.updateUserPcSwList(paramMap);
+		        }
+		        if(deleteList.size()>0){
+		        	paramMap.put("list", deleteList);
+			        infoService.deleteUserPcSwList(paramMap);
 		        }
 	        }
     	}

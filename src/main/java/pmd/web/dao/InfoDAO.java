@@ -68,6 +68,10 @@ public class InfoDAO extends AbstractDAO{
 	public  void updateUserPcSwList( Map<String, Object> map) {
 		insert("info.updateUserPcSwList", map);
 	}
+	
+	public void deleteUserPcSwList(Map<String, Object> map) {
+		delete("info.deleteUserPcSwList", map);
+	}
 
 	/**
 	 * 소프트웨어 등록 > 검색 결과 반환
@@ -102,4 +106,6 @@ public class InfoDAO extends AbstractDAO{
 	public void doDeleteSoftware(Map<String, Object> paramMap) {
 		delete("info.doDeleteSoftware", paramMap);
 	}
+
+	
 }

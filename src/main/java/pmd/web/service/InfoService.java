@@ -72,5 +72,7 @@ public interface InfoService {
 	 * @param paramMap
 	 */
 	void doDeleteSoftware(Map<String, Object> paramMap);
+
+	void deleteUserPcSwList(Map<String, Object> map);
 	
 }
