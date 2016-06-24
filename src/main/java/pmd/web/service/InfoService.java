@@ -21,6 +21,13 @@ public interface InfoService {
 	ArrayList<SoftwareInfoVO> getInstalledSoftware(Map<String,Object> map);
 	
 	/**
+	 * 설치된 프로그램 목록 조회
+	 * @param map
+	 * @return
+	 */
+	ArrayList<SoftwareInfoVO> getInstalledSoftwareWithPcName(Map<String,Object> map);
+	
+	/**
 	 * 유료 프로그램 목록 조회
 	 * @param map
 	 * @return
@@ -74,5 +81,13 @@ public interface InfoService {
 	void doDeleteSoftware(Map<String, Object> paramMap);
 
 	void deleteUserPcSwList(Map<String, Object> map);
+
+	
+	/**
+	 * 수정할 보유 소프트웨어 정보를 가져온다
+	 * @param paramMap
+	 * @return
+	 */
+	SoftwareInfoVO getOwnSoftwareInfo(Map<String, Object> paramMap);
 	
 }

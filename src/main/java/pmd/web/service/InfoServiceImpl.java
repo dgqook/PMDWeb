@@ -36,6 +36,14 @@ public class InfoServiceImpl implements InfoService{
 		ArrayList<SoftwareInfoVO> resultList= infoDAO.getInstalledSoftware(map);
 		return	resultList;
 	}
+	/**
+	 * 설치된 소프트웨어 조회
+	 */
+	@Override
+	public ArrayList<SoftwareInfoVO> getInstalledSoftwareWithPcName(Map<String, Object> map) {
+		ArrayList<SoftwareInfoVO> resultList= infoDAO.getInstalledSoftwareWithPcName(map);
+		return	resultList;
+	}
 
 	/**
 	 * 유료 소프트웨어 목록 조회
@@ -119,5 +127,14 @@ public class InfoServiceImpl implements InfoService{
 	@Override
 	public void doDeleteSoftware(Map<String, Object> paramMap) {
 		infoDAO.doDeleteSoftware(paramMap);
+	}
+
+	/**
+	 * 수정할 보유 소프트웨어 정보를 가져온다.
+	 */
+	@Override
+	public SoftwareInfoVO getOwnSoftwareInfo(Map<String, Object> paramMap) {
+		
+		return infoDAO.getOwnSoftwareInfo(paramMap);
 	}
 }

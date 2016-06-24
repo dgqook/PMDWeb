@@ -11,7 +11,9 @@
 
 	if(userInfo == null || restOfExpiry == null) response.sendRedirect(PMDUtil.PMD_URL);
 	@SuppressWarnings("unchecked")
-	ArrayList<SoftwareInfoVO> ownList= (ArrayList<SoftwareInfoVO>)session.getAttribute("ownList");
+	SoftwareInfoVO softwareInfo= (SoftwareInfoVO)session.getAttribute("softwareInfo");
+	
+	if(softwareInfo == null) response.sendRedirect(PMDUtil.PMD_URL);
 	
 %>
    
@@ -72,19 +74,22 @@
                       
                         <div class="panel">
                            <div class="panel-heading-white panel-heading text-center">
-                              <h4>보유 소프트웨어 목록</h4>
+                              <h4>보유 소프트웨어 정보 수정</h4>
                             </div>
                             <div class="panel-body">
                               <form name="estimateForm">
                               	<div style="margin-bottom:10px;">
-								<input type="button" class="btn btn-primary" onclick="swRegister()" value="제품 등록">
-								<input type="button" class="btn btn-primary" onclick="swDelete()" value="선택 삭제">
-								<input type="button" class="btn btn-primary" onclick="swRequest()" value="보유 제품 연장">
-								<input type="button" class="btn btn-primary" onclick="swEstimate()" value="신규 제품 견적">
+								<input type="button" class="btn btn-primary" value="수정"> 
+								<input type="button" class="btn btn-primary" value="취소">
 								</div>
+								제품명 :
+								<input type="text" class="form-control input-sm" value="<%=softwareInfo.getSwName() %>" readonly="readonly">
+								보유 수량 :
+								<input type="text" class="form-control input-sm" value="<%=softwareInfo.getOwnQuantity()%>"
+									onkeypress="return digit_check(event)">
 								
-								<div id="table_div"></div>
-								<input type="checkbox" name="chk" style="width:0px; height:0px;" value="" >
+								
+								
 							   </form>
                             </div>
                         </div>
@@ -136,121 +141,15 @@
     <!-- custom -->
      <script src="${pageContext.request.contextPath}/asset/js/main.js"></script>
      <script>
-	     google.charts.load('current', {'packages':['table']});
-	     google.charts.setOnLoadCallback(drawTable);
-	
-	     function drawTable() {
-	       var data = new google.visualization.DataTable();
-	       data.addColumn('string', '선택');
-	       data.addColumn('string', '소프트웨어명');
-	       data.addColumn('string', '제조사');
-	       data.addColumn('string', '보유수량');
-	       data.addColumn('string', '잔여일');
-	       data.addColumn('string', ' ');
-	       data.addRows([
-	       <% 
-	       	if(ownList!=null && ownList.size()!=0){
-	       		for(int i=0; i<ownList.size(); i++){
-	       %>
-				['<label style="width:100%; height:100%;">'+
-				 '<input type="checkbox" name="chk" value="<%=ownList.get(i).getOwnSer()%>" class="list_chk"/>'+
-				 '</label>',
-				 '<%=ownList.get(i).getSwName()%>',  '<%=ownList.get(i).getSwVendor()%>', 
-				 '<%=ownList.get(i).getOwnQuantity()%>','<%=ownList.get(i).getOwnExpDate()%>',
-				 '<input type="button" value="수정" onclick="swMod(<%=ownList.get(i).getOwnSer()%>)">'
-				 ]
-			<%
-				if(i!=(ownList.size()-1)){
-			%>
-				,
-			 	 
-			<%
-	       		}}}
-			%>
-	       ]);
-	
-	       var table = new google.visualization.Table(document.getElementById('table_div'));
-	
-	       table.draw(data, {showRowNumber: false, width: '100%', height: '100%', allowHtml: 'true'});
-	     }
-	     
-	     function swRegister(){
-	   	  window.location.href="${pageContext.request.contextPath}/web/info/registerPage.do?searchKeyword=all";
-	     }
-	     
-	     function swDelete(){
-			  var f= document.getElementsByName("estimateForm");
-	   	  var message= "";
-	   	  var count= 0;
-	   	  
-	   	  for(var i=0; i<f[0].chk.length; i++){
-		    	  if(f[0].chk[i].checked){
-					  count++;
-				  }
-	   	  }
-	   	  message+="선택한 소프트웨어 보유 정보를 정말 삭제하시겠습니까?";
-	   	  if(count==0){
-	   		  alert("삭제할 소프트웨어가 없습니다.");
-	   		  return false;
-	   	  } else {
-	   		  if(!confirm(message)){
-	   			  return false;
-	   		  }
-	   	  }
-	   	  
-	   	  f[0].method="post";
-	   	  f[0].action="${pageContext.request.contextPath}/web/info/delete.do";
-	   	  f[0].submit();
-	     }
-	     
-	     function swRequest(){
-	   	  var f= document.getElementsByName("estimateForm");
-	   	  var message= "";
-	   	  var count= 0;
-	   	  
-	   	  for(var i=0; i<f[0].chk.length; i++){
-		    	  if(f[0].chk[i].checked){
-					  count++;
-				  }
-	   	  }
-	   	  message+="선택한 소프트웨어의 견적 정보를 요청하시겠습니까?";
-	   	  if(count==0){
-	   		  alert("선택한 소프트웨어가 없습니다.");
-	   		  return false;
-	   	  } else {
-	   		  if(!confirm(message)){
-	   			  return false;
-	   		  }
-	   	  }
-	   	  f[0].method="post";
-	   	  f[0].action="${pageContext.request.contextPath}/web/info/request.do";
-	   	  f[0].submit();
-	     }
-	     
-	     function swEstimate(){
-	    	 window.location.href="${pageContext.request.contextPath}/web/info/estimatePage.do";
-	     }
-	     function swMod(ser){
-	    	 window.location.href="${pageContext.request.contextPath}/web/info/modifyPage.do?ser="+ser;
-	     }
-	     
-	     
-	     
-	     
-	     $(document).ready(function(){
-	 		$(".list_menu_item").hover(
-	 			function() {
-	 		    	$(this).addClass("mouse_over2").siblings().removeClass("mouse_over");
-	 			}, 
-	 			function() {
-	 		    	$(this).removeClass("mouse_over2");
-	 			}
-	 		);
-	 	});
-	    
-	 		
-	 	
-	 	function servletMessage(){
+     
+     function digit_check(evt){
+    	    var code = evt.which?evt.which:event.keyCode;
+    	    if(code<48 || code>57){
+    	        return false;
+    	    }
+    	}
+     
+     function servletMessage(){
 	 		var v=document.getElementsByName("servletMessage");
 	 		
 	 		if(v[0].value != ""){
