@@ -79,15 +79,15 @@
                             <div class="panel-body">
                               <form name="estimateForm">
                               	<div style="margin-bottom:10px;">
-								<input type="button" class="btn btn-primary" value="수정"> 
-								<input type="button" class="btn btn-primary" value="취소">
+								<input type="button" class="btn btn-primary" value="수정" onclick="doModify(this.form)"> 
+								<input type="button" class="btn btn-primary" value="취소" onclick="javascript:history.back()">
 								</div>
 								제품명 :
-								<input type="text" class="form-control input-sm" value="<%=softwareInfo.getSwName() %>" readonly="readonly">
+								<input type="text" name="swName" class="form-control input-sm" value="<%=softwareInfo.getSwName() %>" readonly="readonly">
 								보유 수량 :
-								<input type="text" class="form-control input-sm" value="<%=softwareInfo.getOwnQuantity()%>"
-									onkeypress="return digit_check(event)">
-								
+								<input id="onlyNumber" type="text" name="ownQuantity" class="form-control input-sm" value="<%=softwareInfo.getOwnQuantity()%>"
+									style="ime-mode:disabled;">
+								<input type="hidden" name="ownSer" value="<%=softwareInfo.getOwnSer()%>">
 								
 								
 							   </form>
@@ -142,12 +142,10 @@
      <script src="${pageContext.request.contextPath}/asset/js/main.js"></script>
      <script>
      
-     function digit_check(evt){
-    	    var code = evt.which?evt.which:event.keyCode;
-    	    if(code<48 || code>57){
-    	        return false;
-    	    }
-    	}
+     $("#onlyNumber").keyup(function(event){
+    	    var inputVal = $(this).val();
+    	    $(this).val(inputVal.replace(/[^0-9]/gi,''));
+    	});
      
      function servletMessage(){
 	 		var v=document.getElementsByName("servletMessage");
@@ -155,8 +153,24 @@
 	 		if(v[0].value != ""){
 	 			alert(v[0].value);
 	 			v[0].value="";	
+	 			window.location.href="${pageContext.request.contextPath}/web/info/manage.do";
 	 		}
 	 	}
+     
+     function doModify(f){
+    	 if(f.ownQuantity.value == null || f.ownQuantity.value == ""){
+    	 	alert("수량을 입력해주세요.");	 
+    	 	return false;
+    	 }
+    	 if(!confirm("수정하시겠습니까?")){
+    		 return false;
+    	 }else{
+    		 f.method="POST";
+    		 f.action="${pageContext.request.contextPath}/web/info/modify.do";
+    		 f.submit();
+    	 }
+     }
+     
 	</script>
      
   <!-- end: Javascript -->

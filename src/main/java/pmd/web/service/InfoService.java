@@ -89,5 +89,12 @@ public interface InfoService {
 	 * @return
 	 */
 	SoftwareInfoVO getOwnSoftwareInfo(Map<String, Object> paramMap);
+
+	/**
+	 * 보유 소프트웨어 수량 수정
+	 * @param paramMap
+	 * @return
+	 */
+	void doModifyQuantity(Map<String, Object> paramMap);
 	
 }

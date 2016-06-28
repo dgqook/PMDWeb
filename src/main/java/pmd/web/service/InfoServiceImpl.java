@@ -124,7 +124,7 @@ public class InfoServiceImpl implements InfoService{
 	/**
 	 * 보유 소프트웨어 정보 삭제
 	 */
-	@Override
+	@Override 
 	public void doDeleteSoftware(Map<String, Object> paramMap) {
 		infoDAO.doDeleteSoftware(paramMap);
 	}
@@ -136,5 +136,13 @@ public class InfoServiceImpl implements InfoService{
 	public SoftwareInfoVO getOwnSoftwareInfo(Map<String, Object> paramMap) {
 		
 		return infoDAO.getOwnSoftwareInfo(paramMap);
+	}
+
+	/**
+	 * 보유 소프트웨어 수량을 수정한다.
+	 */
+	@Override
+	public void doModifyQuantity(Map<String, Object> paramMap) {
+		infoDAO.doModifyQuantity(paramMap);
 	}
 }

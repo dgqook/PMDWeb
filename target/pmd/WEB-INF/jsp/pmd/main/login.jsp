@@ -56,11 +56,15 @@
                     <span class="bar"></span>
                     <label>비밀번호</label>
                   </div>
-                  <label class="pull-left">
-                  <input type="checkbox" class="icheck pull-left" name="saveId" ${saveIdChecked}/> 아이디 저장
-                  <input type="checkbox" class="icheck pull-left" name="autoLoginChk"/> 자동 로그인
-                  <input type="hidden" name="autoLogin" value="${autoLogin}">
+                  <div class="pull-left">
+                  <label>
+                  	<input type="checkbox" class="icheck pull-left" name="saveId" ${saveIdChecked}/> 아이디 저장
                   </label>
+                  <label>
+                  	<input type="checkbox" class="icheck pull-left" name="autoLoginChk"/> 자동 로그인
+                  </label>
+                  <input type="hidden" name="autoLogin" value="${autoLogin}">
+                  </div>
                   <input type="submit" class="btn col-md-12" value="로그인" onclick="doLogin_loginPage(this.form)"/>
               </div>
                 <div class="text-center" style="padding:5px;">

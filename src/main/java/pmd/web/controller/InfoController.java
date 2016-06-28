@@ -966,7 +966,7 @@ public class InfoController {
     
     
     /*******************************************************************************************************
-     * 관리 페이지 > 신규 등록 페이지	> 등록																						*
+     * 관리 페이지 > 수정페이지 > 수정																		*
      * @param commandMap	                                           													*
      * @return																												*
      * @throws Exception																									*
@@ -976,7 +976,7 @@ public class InfoController {
     	/*----------------------------------------------------------------*/
     	/*					기본 반환 페이지 설정 --				  */
     	/*----------------------------------------------------------------*/
-    	ModelAndView mv = new ModelAndView("/info/manage");
+    	ModelAndView mv = new ModelAndView("/info/modify");
     	/*----------------------------------------------------------------*/
     	/*					-- 기본 반환 페이지 설정				  */
     	/*----------------------------------------------------------------*/    	
@@ -1018,11 +1018,19 @@ public class InfoController {
     		/*--------------------------------------------------------------------------*/
     		/*						 	기능 구현 부분 --							*/
     		/*--------------------------------------------------------------------------*/
-    	
+    		String ownSer= "";
+    		String ownQuantity= "";
+    
+    		ownSer= request.getParameter("ownSer");
+    		ownQuantity= request.getParameter("ownQuantity");
     		
+    		Map<String,Object> paramMap= new HashMap<String,Object>();
+    		paramMap.put("ownSer", ownSer);
+    		paramMap.put("ownQuantity", ownQuantity);
+    		infoService.doModifyQuantity(paramMap);
     		
 	           
-    		mv.addObject("servletMessage", "정상적으로 요청되었습니다. \n빠른 시일 내에 계정에 등록된 연락처 또는 이메일 주소로 답변 드리도록 하겠습니다. ");
+    		mv.addObject("servletMessage", "수정되었습니다.");
     		/*--------------------------------------------------------------------------*/
     		/*						 	-- 기능 구현 부분							*/
     		/*--------------------------------------------------------------------------*/

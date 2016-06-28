@@ -124,5 +124,13 @@ public class InfoDAO extends AbstractDAO{
 		return (SoftwareInfoVO)selectOne("info.getOwnSoftwareInfo", paramMap);
 	}
 
+	/**
+	 * 소프트웨어 관리 > 보유 소프트웨어 정보 수정 > 정보 수정
+	 * @param paramMap
+	 */
+	public void doModifyQuantity(Map<String, Object> paramMap) {
+		update("info.doModifyQuantity",paramMap);
+	}
+
 	
 }
