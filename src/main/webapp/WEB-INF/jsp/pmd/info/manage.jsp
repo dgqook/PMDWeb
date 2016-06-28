@@ -79,7 +79,8 @@
                               	<div style="margin-bottom:10px;">
 								<input type="button" class="btn btn-primary" onclick="swRegister()" value="제품 등록">
 								<input type="button" class="btn btn-primary" onclick="swDelete()" value="선택 삭제">
-								<input type="button" class="btn btn-primary" onclick="swRequest()" value="견적 요청">
+								<input type="button" class="btn btn-primary" onclick="swRequest()" value="보유 제품 연장">
+								<input type="button" class="btn btn-primary" onclick="swEstimate()" value="신규 제품 견적">
 								</div>
 								
 								<div id="table_div"></div>
@@ -145,6 +146,7 @@
 	       data.addColumn('string', '제조사');
 	       data.addColumn('string', '보유수량');
 	       data.addColumn('string', '잔여일');
+	       data.addColumn('string', ' ');
 	       data.addRows([
 	       <% 
 	       	if(ownList!=null && ownList.size()!=0){
@@ -154,7 +156,8 @@
 				 '<input type="checkbox" name="chk" value="<%=ownList.get(i).getOwnSer()%>" class="list_chk"/>'+
 				 '</label>',
 				 '<%=ownList.get(i).getSwName()%>',  '<%=ownList.get(i).getSwVendor()%>', 
-				 '<%=ownList.get(i).getOwnQuantity()%>','<%=ownList.get(i).getOwnExpDate()%>'
+				 '<%=ownList.get(i).getOwnQuantity()%>','<%=ownList.get(i).getOwnExpDate()%>',
+				 '<input type="button" value="수정" onclick="swMod(<%=ownList.get(i).getOwnSer()%>)">'
 				 ]
 			<%
 				if(i!=(ownList.size()-1)){
@@ -224,6 +227,16 @@
 	   	  f[0].submit();
 	     }
 	     
+	     function swEstimate(){
+	    	 window.location.href="${pageContext.request.contextPath}/web/info/estimatePage.do";
+	     }
+	     function swMod(ser){
+	    	 window.location.href="${pageContext.request.contextPath}/web/info/modifyPage.do?ser="+ser;
+	     }
+	     
+	     
+	     
+	     
 	     $(document).ready(function(){
 	 		$(".list_menu_item").hover(
 	 			function() {
@@ -234,6 +247,7 @@
 	 			}
 	 		);
 	 	});
+	    
 	 		
 	 	
 	 	function servletMessage(){

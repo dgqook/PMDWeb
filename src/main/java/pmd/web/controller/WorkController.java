@@ -52,7 +52,7 @@ public class WorkController {
      ******************************************************************************************************************************************************/
     @RequestMapping(value="/web/work/generalFilter.do")
     public ModelAndView openGeneralPage(HttpServletRequest request, HttpServletResponse response, CommandMap commandMap) throws Exception{
-    	
+
     	/*----------------------------------------------------------------*/
     	/*					기본 반환 페이지 설정 --				  */
     	/*----------------------------------------------------------------*/
@@ -68,7 +68,7 @@ public class WorkController {
     	/*------------------------------------------------------------------*/
     	/*							-- 파라미터 체크			  			*/
     	/*------------------------------------------------------------------*/
-    	
+
     	/*----------------------------------------------*/
     	/*				세션 가져오기 --				*/
     	/*----------------------------------------------*/
@@ -76,7 +76,7 @@ public class WorkController {
     	/*----------------------------------------------*/
     	/*				-- 세션 가져오기				*/
     	/*----------------------------------------------*/
-    	
+
     	/*------------------------------------------------------------*/
     	/*				현재 사용자 정보 가져오기 --			  */
     	/*------------------------------------------------------------*/
@@ -84,11 +84,11 @@ public class WorkController {
     	/*------------------------------------------------------------*/
     	/*				-- 현재 사용자 정보 가져오기			  */
     	/*------------------------------------------------------------*/
-    	
+
     	/*------------------------------------------*/
     	/*				로그인 체크 -- 			*/
     	/*------------------------------------------*/
-    	if(userInfo == null){	
+    	if(userInfo == null || !userInfo.getUserPmss().equals("M")){
     		////////////// 로그인실패 //////////////
     		mv.setViewName("/main/login");
     		response.sendRedirect(PMDUtil.PMD_URL);
@@ -151,7 +151,6 @@ public class WorkController {
     	/*----------------------------------------------*/
     	/*				-- 로그인 체크	 			*/
     	/*----------------------------------------------*/
-    	
     	return mv;
     } 
     
@@ -281,7 +280,7 @@ public class WorkController {
     	/*------------------------------------------*/
     	/*				로그인 체크 -- 			*/
     	/*------------------------------------------*/
-    	if(userInfo == null){
+    	if(userInfo == null || !userInfo.getUserPmss().equals("M")){
     		////////// 로그인 실패 //////////
     		mv.setViewName("/main/login");
     		response.sendRedirect(PMDUtil.PMD_URL);
@@ -378,7 +377,7 @@ public class WorkController {
     	/*------------------------------------------*/
     	/*				로그인 체크 -- 			*/
     	/*------------------------------------------*/
-    	if(userInfo == null){	
+    	if(userInfo == null || !userInfo.getUserPmss().equals("M")){	
     		////////////// 로그인실패 //////////////
     		mv.setViewName("/main/login");
     		response.sendRedirect(PMDUtil.PMD_URL);
@@ -512,7 +511,7 @@ public class WorkController {
     	/*------------------------------------------*/
     	/*				로그인 체크 -- 			*/
     	/*------------------------------------------*/
-    	if(userInfo == null){	
+    	if(userInfo == null || !userInfo.getUserPmss().equals("M")){	
     		////////////// 로그인실패 //////////////
     		mv.setViewName("/main/login");
     		response.sendRedirect(PMDUtil.PMD_URL);
@@ -596,7 +595,7 @@ public class WorkController {
     	/*------------------------------------------*/
     	/*				로그인 체크 -- 			*/
     	/*------------------------------------------*/
-    	if(userInfo == null){	
+    	if(userInfo == null || !userInfo.getUserPmss().equals("M")){	
     		////////////// 로그인실패 //////////////
     		mv.setViewName("/main/login");
     		response.sendRedirect(PMDUtil.PMD_URL);
@@ -688,7 +687,7 @@ public class WorkController {
     	/*------------------------------------------*/
     	/*				로그인 체크 -- 			*/
     	/*------------------------------------------*/
-    	if(userInfo == null){	
+    	if(userInfo == null || !userInfo.getUserPmss().equals("M")){	
     		////////////// 로그인실패 //////////////
     		mv.setViewName("/main/login");
     		response.sendRedirect(PMDUtil.PMD_URL);
@@ -769,7 +768,7 @@ public class WorkController {
     	/*------------------------------------------*/
     	/*				로그인 체크 -- 			*/
     	/*------------------------------------------*/
-    	if(userInfo == null){	
+    	if(userInfo == null || !userInfo.getUserPmss().equals("M")){	
     		////////////// 로그인실패 //////////////
     		mv.setViewName("/main/login");
     		response.sendRedirect(PMDUtil.PMD_URL);
@@ -867,7 +866,7 @@ public class WorkController {
     	/*------------------------------------------*/
     	/*				로그인 체크 -- 			*/
     	/*------------------------------------------*/
-    	if(userInfo == null){	
+    	if(userInfo == null || !userInfo.getUserPmss().equals("M")){	
     		////////////// 로그인실패 //////////////
     		mv.setViewName("/main/login");
     		response.sendRedirect(PMDUtil.PMD_URL);
@@ -944,7 +943,7 @@ public class WorkController {
     	/*------------------------------------------*/
     	/*				로그인 체크 -- 			*/
     	/*------------------------------------------*/
-    	if(userInfo == null){	
+    	if(userInfo == null || !userInfo.getUserPmss().equals("M")){	
     		////////////// 로그인실패 //////////////
     		mv.setViewName("/main/login");
     		response.sendRedirect(PMDUtil.PMD_URL);
@@ -1022,7 +1021,7 @@ public class WorkController {
     	/*------------------------------------------*/
     	/*				로그인 체크 -- 			*/
     	/*------------------------------------------*/
-    	if(userInfo == null){	
+    	if(userInfo == null || !userInfo.getUserPmss().equals("M")){	
     		////////////// 로그인실패 //////////////
     		mv.setViewName("/main/login");
     		response.sendRedirect(PMDUtil.PMD_URL);
@@ -1046,6 +1045,7 @@ public class WorkController {
     		
     		///// 페이지로 반환할 리스트 채우기 /////
     		for(UserInfoVO u: rawUserList){
+    			
     			///// 영구 라이선스 제외 /////
     			if(!u.getUserExpiryDate().equals("")){
 	    			expiryDate= pmd.stringToDate(u.getUserExpiryDate());
@@ -1066,7 +1066,7 @@ public class WorkController {
 	    			} else {
 	    				///// 잔여기간 30일 이상 /////
 	    				u.setUserRegDate(u.getUserExpiryDate());
-    					u.setUserExpiryDate("<span style=\"color:blue;\">"+diffDays+"일 ("+u.getUserExpiryDate()+")</span>");
+    					u.setUserExpiryDate("<span style=\"color:white;\">"+diffDays+"일 ("+u.getUserExpiryDate()+")</span>");
 	    			}
 	    			userList.add(u);
     			}
@@ -1126,7 +1126,7 @@ public class WorkController {
     	/*------------------------------------------*/
     	/*				로그인 체크 -- 			*/
     	/*------------------------------------------*/
-    	if(userInfo == null){	
+    	if(userInfo == null || !userInfo.getUserPmss().equals("M")){	
     		////////////// 로그인실패 //////////////
     		mv.setViewName("/main/login");
     		response.sendRedirect(PMDUtil.PMD_URL);
@@ -1197,7 +1197,7 @@ public class WorkController {
     	/*------------------------------------------*/
     	/*				로그인 체크 -- 			*/
     	/*------------------------------------------*/
-    	if(userInfo == null){	
+    	if(userInfo == null || !userInfo.getUserPmss().equals("M")){	
     		////////////// 로그인실패 //////////////
     		mv.setViewName("/main/login");
     		response.sendRedirect(PMDUtil.PMD_URL);

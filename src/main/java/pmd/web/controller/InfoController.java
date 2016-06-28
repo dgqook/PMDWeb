@@ -408,12 +408,12 @@ public class InfoController {
      ************************************************************************************************/
     @RequestMapping(value="/web/info/updateSwInfo.do")
     public void updateSwInfo(HttpServletRequest request, HttpServletResponse response, CommandMap commandMap) throws Exception{
-    	request. setCharacterEncoding("UTF-8");
+    	request.setCharacterEncoding("UTF-8"); 										// 리퀘스트 메시지 인코딩 설정
     	
-    	if(PMDUtil.LOG_ENABLE) pmd.getParameterLog(commandMap);	
+    	if(PMDUtil.LOG_ENABLE) pmd.getParameterLog(commandMap);		// 파라미터 로그 출력
     	
-    	String message= request.getParameter("message");
-    	Map<String,Object> paramMap= new HashMap<String,Object>();
+    	String message= request.getParameter("message");						// message라는 이름으로 들어온 파라미터 내용 가져오기
+    	Map<String,Object> paramMap= new HashMap<String,Object>();		// 쿼리에 넣을 파라미터 맵 생성
     	
     	String userId= null;
     	String pcIp= null;
@@ -421,62 +421,142 @@ public class InfoController {
     	String pcOs= null;
     	String updateDate= null;
     	String swFile= null;
-    	String swName= null;
-    	ArrayList<SoftwareInfoVO> messages= new ArrayList<SoftwareInfoVO>();
-    	ArrayList<SoftwareInfoVO> installed= new ArrayList<SoftwareInfoVO>();
-    	ArrayList<SoftwareInfoVO> installedNoDup= new ArrayList<SoftwareInfoVO>();
-    	Map<String,Object> resultMap= null;
-    	if(message!=null && !message.equals("")){
-	        StringTokenizer st= new StringTokenizer(message,"*");
-	        if(st.hasMoreTokens()) {
-	        	userId= st.nextToken();
-	        	paramMap.put("userId", userId);
-	        	resultMap=mainService.doIdCheck(paramMap);
+    	String swName= null;															// 공통 데이터를 담을 변수 선언
+    	
+    	ArrayList<SoftwareInfoVO> messages= new ArrayList<SoftwareInfoVO>();	// 메시지 파라미터 내용을 분리해 담을 ArrayList
+    	
+    	Map<String,Object> resultMap= null;			// 쿼리 결과를 받아올 맵
+    	if(message!=null && !message.equals("")){		// 메시지가 정상적으로 수신된 경우
+	        StringTokenizer st= new StringTokenizer(message,"*");	// 문자열을 * 기호가 나올 때 마다 잘라 토큰으로 만든다
+	        if(st.hasMoreTokens()) {	// 추가 토큰이 있는 경우 수행
+	        	userId= st.nextToken();									// 보내는 쪽의 형식을 그대로 받음, 첫 토큰은 사용자 아이디
+	        	paramMap.put("userId", userId);				
+	        	resultMap=mainService.doIdCheck(paramMap);	// 해당 아이디가 실제로 존재하는지 조회
 	        }
-	        if(st.hasMoreTokens()) pcIp= st.nextToken();
-	        if(st.hasMoreTokens()) pcName= st.nextToken().replaceAll("\'", "");
-	        if(st.hasMoreTokens()) pcOs= st.nextToken();
-	        if(st.hasMoreTokens()) updateDate= st.nextToken();
-	        if(st.hasMoreTokens() && ((String)resultMap.get("checkSuccess")).equals("false")) {
-		        int tiktok= 0;
-		        String nextToken= "";
-		        while(st.hasMoreTokens()){
-		        	nextToken= st.nextToken();
-		        	if(nextToken!=null && !nextToken.equals("")){
-			        	if(tiktok%2==0){
-			        		swFile= nextToken.replaceAll("\'", "");
-			        	}else{
-			        		swName= nextToken.replaceAll("\'", "");
-			        		messages.add(new SoftwareInfoVO(swName,"",swFile,"",userId,pcName,pcIp,pcOs,updateDate));
+	        if(st.hasMoreTokens()) pcIp= st.nextToken();			// 두 번째 토큰을 받음 (아이피)
+	        if(st.hasMoreTokens()) pcName= st.nextToken();		// 세 번째 토큰을 받음 (컴퓨터 이름)
+	        if(st.hasMoreTokens()) pcOs= st.nextToken();			// 네 번째 토큰을 받음 (컴퓨터 OS)
+	        if(st.hasMoreTokens()) updateDate= st.nextToken();	// 다섯 번째 토큰을 받음 (업데이트 시각)
+	        if(st.hasMoreTokens() && ((String)resultMap.get("checkSuccess")).equals("false")) {	// 이후 토큰은 전부 프로그램 관련
+		        int tiktok= 0;				// 프로그램 명과 확장자를 번갈아 보내도록 되어있어, 이를 순서대로 정리하기 위해 변수를 하나 선언함.
+		        String nextToken= "";	// 다음 토큰을 받을 문자열 변수
+		        while(st.hasMoreTokens()){		// 다음 토큰이 존재하지 않을 때 까지 반복
+		        	nextToken= st.nextToken();	// 다음 토큰을 nextToken 변수에 넣는다.
+		        	if(nextToken!=null && !nextToken.equals("")){		// 토큰 내용이 비어있지 않는 경우에만 실행
+			        	if(tiktok%2==0){				// 틱톡 값이 짝수인 경우
+			        		swFile= nextToken;		// 파일명 저장
+			        	}else{							// 틱톡 값이 홀수인 경우
+			        		swName= nextToken;	// 프로그램 이름 저장
+			        		messages.add(new SoftwareInfoVO(swName,swFile,userId,pcName,pcIp,pcOs,updateDate));	// messages에 내용 저장
 			        	}
 		        	}
-		        	tiktok++;
+		        	tiktok++;		// 틱톡 값 증가
 		        }
-		        ArrayList<SoftwareInfoVO> installList= infoService.getInstalledSoftware(paramMap);
-
-		        for(int i=0; i<messages.size(); i++)
-		        	if(!messages.get(i).equals("")) {
-		        		installed.add(new SoftwareInfoVO(messages.get(i).getSwName(),messages.get(i).getSwFile(),userId,pcName,pcIp,pcOs,updateDate));
+		      
+		        paramMap.put("pcName", pcName);
+		        ArrayList<SoftwareInfoVO> installList= infoService.getInstalledSoftwareWithPcName(paramMap); 	// DB에 입력된 설치 프로그램 목록 가져오기
+			        
+		        
+		        // 여기부터 새로 작성
+		        // installList (A) : DB에 입력된 설치 프로그램
+		        // messages (B) : 새로 입력 받은 설치 프로그램
+		        // 아래 내용 -> 	A와 B 간의 중복 소프트웨어 정보 제거 (DB 이중 등록 방지)
+		        //					B엔 없지만 A엔 있는 소프트웨어의 경우, B에서 해당 소프트웨어 정보 삭제
+		        
+		        ArrayList<SoftwareInfoVO> updateList= new ArrayList<SoftwareInfoVO>();	// 업데이트 할 소프트웨어 정보
+		        ArrayList<SoftwareInfoVO> existList= new ArrayList<SoftwareInfoVO>();		// 두 목록에 공통적으로 존재하는 소프트웨어 정보
+		        ArrayList<SoftwareInfoVO> deleteList= new ArrayList<SoftwareInfoVO>();	// DB에서 삭제할 소프트웨어 정보
+		        
+		        String temp1= "";
+		        String temp2= "";
+		        boolean isExist= false;
+		        
+		        for(SoftwareInfoVO n:messages){
+		        	for(SoftwareInfoVO o:installList){
+		        		// 소프트웨어 명 가져오기
+		        		temp1= o.getSwName();
+		        		temp2= n.getSwName();
+		        		
+		        		// 공백 제거
+		        		temp1.replaceAll(" ", "");
+		        		temp2.replaceAll(" ", "");
+		        		
+		        		// 만약 이름이 같다면 (기존 DB정보에 이미 들어가 있는 내용이라면)
+		        		if(temp1.equals(temp2) && o.getPcName().replaceAll(" ", "").equals(pcName.replaceAll(" ", ""))) {
+		        			isExist= true;
+		        			existList.add(o);
+		        		}
 		        	}
-		        boolean isExist= false; 
-		        for(SoftwareInfoVO s:installed) {
-		        	for(SoftwareInfoVO d:installedNoDup) {			// 목록 내에 중복된 소프트웨어 이름 제거
-		        		if(s.getSwName().replaceAll(" ", "").replaceAll("\\", "/").equals(d.getSwName().replaceAll(" ", ""))){
+	        		
+	        		if(isExist == false){		// DB에 존재하지 않던 프로그램은 updateList에 추가
+	        			updateList.add(
+        					new SoftwareInfoVO(n.getSwName(), n.getSwFile(), n.getUserId(), n.getPcName(), n.getPcIp(), n.getPcOs(), n.getUpdateDate() )
+	        				);
+	        		}
+	        		isExist= false;
+		        }
+		        
+		        isExist= false;
+		        for(SoftwareInfoVO o:installList){
+		        	for(SoftwareInfoVO e:existList){
+		        		temp1= o.getSwName();
+		        		temp2= e.getSwName();
+		        		temp1.replaceAll(" ", "");
+		        		temp2.replaceAll(" ", "");
+		        		
+		        		if(temp1.equals(temp2) && o.getPcName().replaceAll(" ", "").equals(pcName.replaceAll(" ", ""))){
 		        			isExist= true;
 		        		}
 		        	}
-		        	for(SoftwareInfoVO i:installList){				// 이미 등록된 소프트웨어와 동일한 이름인 경우 추가X
-		        		if(s.getSwName().replaceAll(" ", "").replaceAll("\\", "/").equals(i.getSwName().replaceAll(" ", "")) && s.getPcName().equals(i.getPcName())){
-		        			isExist= true;
-		        		}
+		        	if(isExist == false){
+		        		deleteList.add(o);
 		        	}
-		        	if(!isExist) installedNoDup.add(new SoftwareInfoVO(s.getSwName(),userId,pcName,pcIp,pcOs,updateDate));
 		        	isExist= false;
-		        }       		
+		        }
+		        
+		        
+		        
+		        
+		        
+		        /*
+		        ArrayList<SoftwareInfoVO> installListTemp= new ArrayList<SoftwareInfoVO>(installList);	// 비교용 ArrayList
+		        int idx= 0;	// 인덱스
+
+		        
+		        
+		        //boolean isExist= false; 
+		        for(SoftwareInfoVO s:installListTemp) {
+		        	for(SoftwareInfoVO d:installedNoDup) {			// 목록 내에 중복된 소프트웨어 이름 제거
+		        		if(s.getSwName().replaceAll(" ", "").equals(d.getSwName().replaceAll(" ", ""))){
+		        			isExist= true;
+		        		}
+		        	}
+		        	
+		        	for(SoftwareInfoVO i:installListTemp){				// 이미 등록된 소프트웨어와 동일한 이름인 경우 추가X
+		        		if(s.getSwName().replaceAll(" ", "").equals(i.getSwName().replaceAll(" ", "")) && s.getPcName().equals(i.getPcName())){
+		        			isExist= true;
+		        		}
+		        	}
+		        	if(!isExist) installedNoDup.add(new SoftwareInfoVO(installList.get(idx).getSwName(),userId,pcName,pcIp,pcOs,updateDate));
+		        	isExist= false;
+		        	idx++;		// 인덱스 증가
+		        }
+		        
+		        
 		        
 		        if(installedNoDup.size()>0){
 			        paramMap.put("list", installedNoDup);
 			        infoService.updateUserPcSwList(paramMap);
+		        }
+		        */
+		        
+		        if(updateList.size()>0){
+		        	paramMap.put("list", updateList);
+			        infoService.updateUserPcSwList(paramMap);
+		        }
+		        if(deleteList.size()>0){
+		        	paramMap.put("list", deleteList);
+			        infoService.deleteUserPcSwList(paramMap);
 		        }
 	        }
     	}
@@ -574,7 +654,395 @@ public class InfoController {
     	/*----------------------------------------------*/
     	return mv;
     } 
+  //------------------------------------------------------------------------------------------------------------------------------------------------
+    // 신규 견적 요청 관련
+    
+    /*******************************************************************************************************
+     * 관리 페이지 > 신규 등록 페이지																							*
+     * @param commandMap	                                           													*
+     * @return																												*
+     * @throws Exception																									*
+     *******************************************************************************************************/
+    @RequestMapping(value="/web/info/estimatePage.do")
+    public ModelAndView goEstimatePage(HttpServletRequest request, HttpServletResponse response, CommandMap commandMap) throws Exception {
+    	/*----------------------------------------------------------------*/
+    	/*					기본 반환 페이지 설정 --				  */
+    	/*----------------------------------------------------------------*/
+    	ModelAndView mv = new ModelAndView("/info/estimate");
+    	/*----------------------------------------------------------------*/
+    	/*					-- 기본 반환 페이지 설정				  */
+    	/*----------------------------------------------------------------*/    	
     	
+    	/*------------------------------------------------------------------*/
+    	/*							파라미터 체크 --			  			*/
+    	/*------------------------------------------------------------------*/
+    	if(PMDUtil.LOG_ENABLE) pmd.getParameterLog(commandMap);	
+    	/*------------------------------------------------------------------*/
+    	/*							-- 파라미터 체크			  			*/
+    	/*------------------------------------------------------------------*/    	
+    	
+    	/*----------------------------------------------*/
+    	/*				세션 가져오기 --				*/
+    	/*----------------------------------------------*/
+    	HttpSession session= request.getSession();
+    	/*----------------------------------------------*/
+    	/*				-- 세션 가져오기				*/
+    	/*----------------------------------------------*/    	
+    	
+    	/*------------------------------------------------------------*/
+    	/*				현재 사용자 정보 가져오기 --			  */
+    	/*------------------------------------------------------------*/
+    	UserInfoVO userInfo= pmd.loginCheck(session);
+    	/*------------------------------------------------------------*/
+    	/*				-- 현재 사용자 정보 가져오기			  */
+    	/*------------------------------------------------------------*/
+    	
+    	/*------------------------------------------*/
+    	/*				로그인 체크 -- 			*/
+    	/*------------------------------------------*/
+    	if(userInfo == null){	
+    		////////////// 로그인실패 //////////////
+    		mv.setViewName("/main/login");
+    		response.sendRedirect(PMDUtil.PMD_URL);
+    		
+    	}else{	
+    		////////////// 로그인 성공 //////////////
+    		/*--------------------------------------------------------------------------*/
+    		/*						 	기능 구현 부분 --							*/
+    		/*--------------------------------------------------------------------------*/
+    	
+    		Map<String, Object> paramMap= new HashMap<String,Object>();
+    		String searchKeyword= request.getParameter("searchKeyword");
+    		if(searchKeyword == null || searchKeyword.equals("")){
+	    		ArrayList<SoftwareInfoVO> chargedList= new ArrayList<SoftwareInfoVO>();
+	    		session.setAttribute("chargedList", chargedList);
+    		} else {
+    			paramMap.put("searchKeyword", searchKeyword);
+    			ArrayList<SoftwareInfoVO> chargedList= infoService.getChargedSoftwareByPk(paramMap);
+    			session.setAttribute("chargedList", chargedList);
+    		}
+    		
+    		/*--------------------------------------------------------------------------*/
+    		/*						 	-- 기능 구현 부분							*/
+    		/*--------------------------------------------------------------------------*/
+    	}
+    	/*----------------------------------------------*/
+    	/*				-- 로그인 체크	 			*/
+    	/*----------------------------------------------*/
+    	return mv;
+    }
+    
+    
+    /*******************************************************************************************************
+     * 관리 페이지 > 신규 등록 페이지	> 등록																						*
+     * @param commandMap	                                           													*
+     * @return																												*
+     * @throws Exception																									*
+     *******************************************************************************************************/
+    @RequestMapping(value="/web/info/estimate.do")
+    public ModelAndView doEstimate(HttpServletRequest request, HttpServletResponse response, CommandMap commandMap) throws Exception {
+    	/*----------------------------------------------------------------*/
+    	/*					기본 반환 페이지 설정 --				  */
+    	/*----------------------------------------------------------------*/
+    	ModelAndView mv = new ModelAndView("/info/manage");
+    	/*----------------------------------------------------------------*/
+    	/*					-- 기본 반환 페이지 설정				  */
+    	/*----------------------------------------------------------------*/    	
+    	
+    	/*------------------------------------------------------------------*/
+    	/*							파라미터 체크 --			  			*/
+    	/*------------------------------------------------------------------*/
+    	if(PMDUtil.LOG_ENABLE) pmd.getParameterLog(commandMap);	
+    	/*------------------------------------------------------------------*/
+    	/*							-- 파라미터 체크			  			*/
+    	/*------------------------------------------------------------------*/    	
+    	
+    	/*----------------------------------------------*/
+    	/*				세션 가져오기 --				*/
+    	/*----------------------------------------------*/
+    	HttpSession session= request.getSession();
+    	/*----------------------------------------------*/
+    	/*				-- 세션 가져오기				*/
+    	/*----------------------------------------------*/    	
+    	
+    	/*------------------------------------------------------------*/
+    	/*				현재 사용자 정보 가져오기 --			  */
+    	/*------------------------------------------------------------*/
+    	UserInfoVO userInfo= pmd.loginCheck(session);
+    	/*------------------------------------------------------------*/
+    	/*				-- 현재 사용자 정보 가져오기			  */
+    	/*------------------------------------------------------------*/
+    	
+    	/*------------------------------------------*/
+    	/*				로그인 체크 -- 			*/
+    	/*------------------------------------------*/
+    	if(userInfo == null){	
+    		////////////// 로그인실패 //////////////
+    		mv.setViewName("/main/login");
+    		response.sendRedirect(PMDUtil.PMD_URL);
+    		
+    	}else{	
+    		////////////// 로그인 성공 //////////////
+    		/*--------------------------------------------------------------------------*/
+    		/*						 	기능 구현 부분 --							*/
+    		/*--------------------------------------------------------------------------*/
+    	
+    		
+    		 // 이메일 관련
+        	
+    		Date nowDate = new Date();
+    		SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    		String nowDateString = transFormat.format(nowDate);
+    		
+    		String quantity= request.getParameter("quantity");
+    		
+    		String chk[] = request.getParameterValues("chk");
+    		Map<String,Object> paramMap= new HashMap<String,Object>();
+    		paramMap.put("userId", userInfo.getUserId());
+    		ArrayList<SoftwareInfoVO> chargedList= infoService.getChargedSoftware(paramMap);
+    		ArrayList<SoftwareInfoVO> requestList= new ArrayList<SoftwareInfoVO>();
+    		
+    		   		
+    		// 매칭된 보유 소프트웨어와 동일한 유료 소프트웨어 정보를 다시 추린다.
+    		for(String o:chk){
+    			for(SoftwareInfoVO c:chargedList){
+    				if(o.replaceAll(" ", "").equals(c.getSwName().replaceAll(" ", ""))){
+    					c.setOwnQuantity(quantity);
+    					requestList.add(c);
+    				}
+    			}
+    		}
+    		
+    		 // 메일 관련 정보
+	           String host = "smtp.worksmobile.com";
+	           final String username = PMDUtil.REQUEST_MAIL_ID;
+	           final String password = PMDUtil.REQUEST_MAIL_PW;		//TODO 웍스모바일 비밀번호
+	           
+	           
+	           // 메일 내용
+	           String subject = "[신규] PMD 견적 요청 - "+userInfo.getUserId()+" | "+nowDateString;
+	           String body = 	"일시: "+nowDateString+"\n"+
+			        		    "아이디: "+userInfo.getUserId()+"\n"+
+			        		    "이메일: "+userInfo.getUserEmail()+"\n"+
+			        		    "유선전화: "+userInfo.getUserTel()+"\n"+
+			        		    "휴대전화: "+userInfo.getUserHp()+"\n"+
+	        		   			"회사: "+userInfo.getUserCoName()+"\n"+
+	        		   			"회사주소: ("+userInfo.getUserCoZip()+") "+userInfo.getUserCoAddr()+"\n\n"+
+	        		   			"< 견적 내용 > ( [회사] 제품, 수량 )\n\n";
+	           
+	           for(SoftwareInfoVO s:requestList){
+	        	   body+="[ "+s.getSwVendor()+" ] ";
+	        	   body+=s.getSwName()+",   ";
+	        	   body+=s.getOwnQuantity()+"\n";
+	           }
+	           body+="\n\n본문에 있는 메일 주소로 견적 내용 보내주시면 됩니다.";
+	            
+	           Properties props = System.getProperties();
+	            
+	           props.put("mail.smtp.user" , username);
+	           props.put("mail.smtp.host", host);
+	           props.put("mail.smtp.port", "465");
+	           props.put("mail.smtp.starttls.enable", "true");
+	           props.put("mail.smtp.auth", "true");
+	           props.put("mail.smtp.debug", "true");
+	           props.put("mail.smtp.socketFactory.port", "465");
+	           props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+	           props.put("mail.smtp.socketFactory.fallback", "false");
+
+
+	           Session session2 = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
+	               String un=username;
+	               String pw=password;
+	               protected PasswordAuthentication getPasswordAuthentication() {
+	                   return new PasswordAuthentication(un, pw);
+	               }
+	           });
+	           session2.setDebug(PMDUtil.LOG_ENABLE); //for debug
+	           Message mimeMessage = new MimeMessage(session2);
+	           mimeMessage.setFrom(new InternetAddress(PMDUtil.REQUEST_MAIL_ID));
+	           //mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+	           
+	           InternetAddress[] toAddr= new InternetAddress[3];
+	           toAddr[0]= new InternetAddress(PMDUtil.REQUEST_MAIL_TO1);
+	           toAddr[1]= new InternetAddress(PMDUtil.REQUEST_MAIL_TO2);
+	           toAddr[2]= new InternetAddress(PMDUtil.REQUEST_MAIL_ID);
+	           mimeMessage.setRecipients(Message.RecipientType.TO, toAddr);
+	           
+	           mimeMessage.setSubject(subject);
+	           mimeMessage.setText(body);
+	           Transport.send(mimeMessage);
+	           
+	       	// --이메일 관련
+	           
+	           
+    		mv.addObject("servletMessage", "정상적으로 요청되었습니다. \n빠른 시일 내에 계정에 등록된 연락처 또는 이메일 주소로 답변 드리도록 하겠습니다. ");
+    		/*--------------------------------------------------------------------------*/
+    		/*						 	-- 기능 구현 부분							*/
+    		/*--------------------------------------------------------------------------*/
+    	}
+    	/*----------------------------------------------*/
+    	/*				-- 로그인 체크	 			*/
+    	/*----------------------------------------------*/
+    	return mv;
+    }
+    
+  //------------------------------------------------------------------------------------------------------------------------------------------------
+    // 보유 소프트웨어 수정 관련
+    
+    /*******************************************************************************************************
+     * 관리 페이지 > 수정 페이지																						*
+     * @param commandMap	                                           													*
+     * @return																												*
+     * @throws Exception																									*
+     *******************************************************************************************************/
+    @RequestMapping(value="/web/info/modifyPage.do")
+    public ModelAndView goModifyPage(HttpServletRequest request, HttpServletResponse response, CommandMap commandMap) throws Exception {
+    	/*----------------------------------------------------------------*/
+    	/*					기본 반환 페이지 설정 --				  */
+    	/*----------------------------------------------------------------*/
+    	ModelAndView mv = new ModelAndView("/info/modify");
+    	/*----------------------------------------------------------------*/
+    	/*					-- 기본 반환 페이지 설정				  */
+    	/*----------------------------------------------------------------*/    	
+    	
+    	/*------------------------------------------------------------------*/
+    	/*							파라미터 체크 --			  			*/
+    	/*------------------------------------------------------------------*/
+    	if(PMDUtil.LOG_ENABLE) pmd.getParameterLog(commandMap);	
+    	/*------------------------------------------------------------------*/
+    	/*							-- 파라미터 체크			  			*/
+    	/*------------------------------------------------------------------*/    	
+    	
+    	/*----------------------------------------------*/
+    	/*				세션 가져오기 --				*/
+    	/*----------------------------------------------*/
+    	HttpSession session= request.getSession();
+    	/*----------------------------------------------*/
+    	/*				-- 세션 가져오기				*/
+    	/*----------------------------------------------*/    	
+    	
+    	/*------------------------------------------------------------*/
+    	/*				현재 사용자 정보 가져오기 --			  */
+    	/*------------------------------------------------------------*/
+    	UserInfoVO userInfo= pmd.loginCheck(session);
+    	/*------------------------------------------------------------*/
+    	/*				-- 현재 사용자 정보 가져오기			  */
+    	/*------------------------------------------------------------*/
+    	
+    	/*------------------------------------------*/
+    	/*				로그인 체크 -- 			*/
+    	/*------------------------------------------*/
+    	if(userInfo == null){	
+    		////////////// 로그인실패 //////////////
+    		mv.setViewName("/main/login");
+    		response.sendRedirect(PMDUtil.PMD_URL);
+    		
+    	}else{	
+    		////////////// 로그인 성공 //////////////
+    		/*--------------------------------------------------------------------------*/
+    		/*						 	기능 구현 부분 --							*/
+    		/*--------------------------------------------------------------------------*/
+    	
+    		Map<String, Object> paramMap= new HashMap<String,Object>();
+    		String ownSer= request.getParameter("ser");
+    		if(ownSer == null || ownSer.equals("")){
+    			mv.setViewName("/info/manage");
+	    		mv.addObject("servletMessage", "오류가 발생했습니다.");
+    		} else {
+    			paramMap.put("ownSer", ownSer);
+    			SoftwareInfoVO ownSoftwareInfo= infoService.getOwnSoftwareInfo(paramMap);
+    			session.setAttribute("softwareInfo", ownSoftwareInfo);
+    		}
+    		
+    		/*--------------------------------------------------------------------------*/
+    		/*						 	-- 기능 구현 부분							*/
+    		/*--------------------------------------------------------------------------*/
+    	}
+    	/*----------------------------------------------*/
+    	/*				-- 로그인 체크	 			*/
+    	/*----------------------------------------------*/
+    	return mv;
+    }
+    
+    
+    /*******************************************************************************************************
+     * 관리 페이지 > 수정페이지 > 수정																		*
+     * @param commandMap	                                           													*
+     * @return																												*
+     * @throws Exception																									*
+     *******************************************************************************************************/
+    @RequestMapping(value="/web/info/modify.do")
+    public ModelAndView doModify(HttpServletRequest request, HttpServletResponse response, CommandMap commandMap) throws Exception {
+    	/*----------------------------------------------------------------*/
+    	/*					기본 반환 페이지 설정 --				  */
+    	/*----------------------------------------------------------------*/
+    	ModelAndView mv = new ModelAndView("/info/modify");
+    	/*----------------------------------------------------------------*/
+    	/*					-- 기본 반환 페이지 설정				  */
+    	/*----------------------------------------------------------------*/    	
+    	
+    	/*------------------------------------------------------------------*/
+    	/*							파라미터 체크 --			  			*/
+    	/*------------------------------------------------------------------*/
+    	if(PMDUtil.LOG_ENABLE) pmd.getParameterLog(commandMap);	
+    	/*------------------------------------------------------------------*/
+    	/*							-- 파라미터 체크			  			*/
+    	/*------------------------------------------------------------------*/    	
+    	
+    	/*----------------------------------------------*/
+    	/*				세션 가져오기 --				*/
+    	/*----------------------------------------------*/
+    	HttpSession session= request.getSession();
+    	/*----------------------------------------------*/
+    	/*				-- 세션 가져오기				*/
+    	/*----------------------------------------------*/    	
+    	
+    	/*------------------------------------------------------------*/
+    	/*				현재 사용자 정보 가져오기 --			  */
+    	/*------------------------------------------------------------*/
+    	UserInfoVO userInfo= pmd.loginCheck(session);
+    	/*------------------------------------------------------------*/
+    	/*				-- 현재 사용자 정보 가져오기			  */
+    	/*------------------------------------------------------------*/
+    	
+    	/*------------------------------------------*/
+    	/*				로그인 체크 -- 			*/
+    	/*------------------------------------------*/
+    	if(userInfo == null){	
+    		////////////// 로그인실패 //////////////
+    		mv.setViewName("/main/login");
+    		response.sendRedirect(PMDUtil.PMD_URL);
+    		
+    	}else{	
+    		////////////// 로그인 성공 //////////////
+    		/*--------------------------------------------------------------------------*/
+    		/*						 	기능 구현 부분 --							*/
+    		/*--------------------------------------------------------------------------*/
+    		String ownSer= "";
+    		String ownQuantity= "";
+    
+    		ownSer= request.getParameter("ownSer");
+    		ownQuantity= request.getParameter("ownQuantity");
+    		
+    		Map<String,Object> paramMap= new HashMap<String,Object>();
+    		paramMap.put("ownSer", ownSer);
+    		paramMap.put("ownQuantity", ownQuantity);
+    		infoService.doModifyQuantity(paramMap);
+    		
+	           
+    		mv.addObject("servletMessage", "수정되었습니다.");
+    		/*--------------------------------------------------------------------------*/
+    		/*						 	-- 기능 구현 부분							*/
+    		/*--------------------------------------------------------------------------*/
+    	}
+    	/*----------------------------------------------*/
+    	/*				-- 로그인 체크	 			*/
+    	/*----------------------------------------------*/
+    	return mv;
+    }
+    	
+    //----------------------------------------------------------------------------------------------------------------------------------------------------
+    
     /*******************************************************************************************************
      * 관리 페이지 > 등록 페이지																							*
      * @param commandMap	                                           													*
@@ -632,8 +1100,8 @@ public class InfoController {
     		
     		Map<String, Object> paramMap= new HashMap<String,Object>();
     		String searchKeyword= request.getParameter("searchKeyword");
-    		if(searchKeyword == null || searchKeyword.equals("") || searchKeyword.equals("all")){
-	    		ArrayList<SoftwareInfoVO> chargedList= infoService.getChargedSoftware(paramMap);
+    		if(searchKeyword == null || searchKeyword.equals("")){
+	    		ArrayList<SoftwareInfoVO> chargedList= new ArrayList<SoftwareInfoVO>();
 	    		session.setAttribute("chargedList", chargedList);
     		} else {
     			paramMap.put("searchKeyword", searchKeyword);
@@ -971,7 +1439,7 @@ public class InfoController {
 	           
 	           
 	           // 메일 내용
-	           String subject = "Coordy 견적 요청 - "+userInfo.getUserId()+" | "+nowDateString;
+	           String subject = "[연장] PMD 견적 요청 - "+userInfo.getUserId()+" | "+nowDateString;
 	           String body = 	"일시: "+nowDateString+"\n"+
 			        		    "아이디: "+userInfo.getUserId()+"\n"+
 			        		    "이메일: "+userInfo.getUserEmail()+"\n"+
@@ -1027,7 +1495,7 @@ public class InfoController {
 	           
 	       	// --이메일 관련
 	       	
-	       	mv.addObject("servletMessage","정상적으로 요청되었습니다. \n빠른 시일 내에 계정에 등록된 이메일 주소로  답변 드리도록 하겠습니다. ");
+	       	mv.addObject("servletMessage","정상적으로 요청되었습니다. \n빠른 시일 내에 계정에 등록된 연락처 또는 이메일 주소로 답변 드리도록 하겠습니다. ");
     		
 	       	/*--------------------------------------------------------------------------*/
     		/*						 	-- 기능 구현 부분							*/
@@ -1097,8 +1565,8 @@ public class InfoController {
     		
     		Map<String, Object> paramMap= new HashMap<String,Object>();
     		String searchKeyword= request.getParameter("searchKeyword");
-    		if(searchKeyword == null || searchKeyword.equals("") || searchKeyword.equals("all")){
-	    		ArrayList<SoftwareInfoVO> chargedList= infoService.getChargedSoftware(paramMap);
+    		if(searchKeyword == null || searchKeyword.equals("") ){
+	    		ArrayList<SoftwareInfoVO> chargedList= new ArrayList<SoftwareInfoVO>();
 	    		session.setAttribute("chargedList", chargedList);
     		} else {
     			paramMap.put("searchKeyword", searchKeyword);

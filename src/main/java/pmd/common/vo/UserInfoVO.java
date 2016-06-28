@@ -124,6 +124,11 @@ public class UserInfoVO implements Serializable {
 	public void setUserAnswer(String userAnswer) {
 		this.userAnswer = userAnswer;
 	}
+	@Override
+	public String toString() {
+		return "UserInfoVO [userId=" + userId + ", userPmss=" + userPmss + ", userName=" + userName + ", userEmail="
+				+ userEmail + ", userCoName=" + userCoName + "]";
+	}
 	
 	
 }

@@ -30,6 +30,15 @@ public class InfoDAO extends AbstractDAO{
 	public  ArrayList<SoftwareInfoVO> getInstalledSoftware( Map<String, Object> map) {
 		return (ArrayList<SoftwareInfoVO>)selectList("info.getInstalledSoftware", map);
 	}
+	/**
+	 * 등록된 PC 및 설치된 프로그램들 조회
+	 * @param map
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public  ArrayList<SoftwareInfoVO> getInstalledSoftwareWithPcName( Map<String, Object> map) {
+		return (ArrayList<SoftwareInfoVO>)selectList("info.getInstalledSoftwareWithPcName", map);
+	}
 	
 	/**
 	 * 등록된 PC 및 설치된 프로그램들 조회
@@ -68,6 +77,10 @@ public class InfoDAO extends AbstractDAO{
 	public  void updateUserPcSwList( Map<String, Object> map) {
 		insert("info.updateUserPcSwList", map);
 	}
+	
+	public void deleteUserPcSwList(Map<String, Object> map) {
+		delete("info.deleteUserPcSwList", map);
+	}
 
 	/**
 	 * 소프트웨어 등록 > 검색 결과 반환
@@ -102,4 +115,22 @@ public class InfoDAO extends AbstractDAO{
 	public void doDeleteSoftware(Map<String, Object> paramMap) {
 		delete("info.doDeleteSoftware", paramMap);
 	}
+
+	/**
+	 * 소프트웨어 관리 > 보유 소프트웨어 정보 수정 > 정보 불러오기
+	 * @param paramMap
+	 */
+	public SoftwareInfoVO getOwnSoftwareInfo(Map<String, Object> paramMap) {
+		return (SoftwareInfoVO)selectOne("info.getOwnSoftwareInfo", paramMap);
+	}
+
+	/**
+	 * 소프트웨어 관리 > 보유 소프트웨어 정보 수정 > 정보 수정
+	 * @param paramMap
+	 */
+	public void doModifyQuantity(Map<String, Object> paramMap) {
+		update("info.doModifyQuantity",paramMap);
+	}
+
+	
 }
