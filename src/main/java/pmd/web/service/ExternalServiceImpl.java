@@ -1,6 +1,10 @@
 package pmd.web.service;
 
-public interface ExternalServiceImpl {
+import org.springframework.stereotype.Service;
+
+@Service("externalService")
+public class ExternalServiceImpl implements ExternalService{
+	
 	// 연결 테스트
 	
 	// 연락처 목록 가져오기
