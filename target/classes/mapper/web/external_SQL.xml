@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="external">
+	<resultMap id="contactVO"  type="pmd.common.vo.ContactInfoVO">
+		<result property="name" column="NAME"/>
+		<result property="pnum" column="PNUM"/>
+		<result property="skey" column="SKEY"/>
+		<result property="akey" column="AKEY"/>
+		
+	</resultMap>
+	     
+     <!-- 연락처 등록 -->
+    <insert id="registerContact" parameterType="hashmap">
+        <![CDATA[
+            INSERT INTO CONTACT_INFO(NAME, PNUM, SKEY, AKEY)            	
+            VALUES(#{name},#{pnum},#{skey},#{akey})
+        ]]>
+    </insert>
+    
+     <!-- 연락처 삭제 -->
+    <delete id="removeContact" parameterType="hashmap">
+        <![CDATA[
+            DELETE FROM CONTACT_INFO            	
+            WHERE NAME=#{name} AND PNUM=#{pnum} AND SKEY=#{skey} AND AKEY=#{akey}
+        ]]>
+    </delete>
+    
+    <select id="selectContactList" parameterType="hashmap" resultMap="contactVO">
+        <![CDATA[
+        	SELECT NAME, PNUM, SKEY, AKEY FROM CONTACT_INFO WHERE SKEY=#{skey} AND AKEY=#{akey}
+        ]]>
+    </select>
+    
+</mapper>
