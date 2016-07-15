@@ -18,7 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 import pmd.common.common.CommandMap;
 import pmd.common.common.PMDUtil;
 import pmd.common.vo.ContactInfoVO;
-import pmd.web.service.ExternalService;
+import pmd.web.service.ExternalService; 
 
 @Controller
 public class ExternalController {
@@ -71,10 +71,9 @@ public class ExternalController {
      * @throws Exception																									*
      *******************************************************************************************************/
     @SuppressWarnings("unchecked")
-	@RequestMapping(value="/external/register.do")
+	@RequestMapping(value="/external/contactRegister.do")
     public ModelAndView contactRegister(HttpServletRequest request, HttpServletResponse response, CommandMap commandMap) throws Exception{
     	ModelAndView mv= new ModelAndView("external/test");
-    	pmd.logging("[LOG] EXTERNAL CONNECT TEST");
     	
     	/*------------------------------------------------------------------*/
     	/*							파라미터 체크 --			  			*/
@@ -114,7 +113,7 @@ public class ExternalController {
 	        	Map<String,Object> paramMap= new HashMap<String,Object>();
 	        	
 	        	
-	        	if(success.equals("true")){
+	        	if(success.equals("true")){ // 안드로이드에서 보내 온 내용이 정상적인 경우
 	        		success= null;
 	        		
 	        		paramMap.put("name", name);
@@ -122,18 +121,31 @@ public class ExternalController {
 	            	paramMap.put("skey",skey);
 	            	paramMap.put("akey", akey);
 	            	
-	            	paramMap= externalService.registerContact(paramMap);
-	            	success= String.valueOf(paramMap.get("success"));
-	            	
-	            	if(success.equals("true")){
-	            		resultJson.put("data", null);
-	            		resultJson.put("success", "true");
-	            		
-	            	} else {
-	            		resultJson.put("data", null);
+	            	// 중복체크 먼저 수행하고 아래 기능 수행 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		        	ArrayList<ContactInfoVO> contactList= externalService.getContactList(paramMap);
+		        	boolean duplicate= false;
+		        	for(ContactInfoVO c: contactList){
+		        		if(c.getName().equals(name) && c.getPnum().equals(pnum) && c.getSkey().equals(skey) && c.getAkey().equals(akey)){
+		        			duplicate= true;
+		        		}
+		        	}
+		        	
+		        	if(!duplicate){		// 중복된 데이터가 존재하지 않는 경우
+		        		paramMap= externalService.registerContact(paramMap);
+		            	success= String.valueOf(paramMap.get("success"));
+		            	
+		            	if(success.equals("true")){
+		            		resultJson.put("data", null);
+		            		resultJson.put("success", "true");
+		            		
+		            	} else {
+		            		resultJson.put("data", null);
+		            		resultJson.put("success", "false");
+		            	}
+		        	} else {		// 중복된 데이터가 존재하는 경우
+		        		resultJson.put("data", null);
 	            		resultJson.put("success", "false");
-	            		
-	            	}
+		        	}
 	        	} else {
 	        		resultJson.put("data", null);
 	        		resultJson.put("success", "false");
@@ -158,10 +170,9 @@ public class ExternalController {
      * @throws Exception																									*
      *******************************************************************************************************/
     @SuppressWarnings("unchecked")
-	@RequestMapping(value="/external/remove.do")
+	@RequestMapping(value="/external/contactRemove.do")
     public ModelAndView contactRemove(HttpServletRequest request, HttpServletResponse response, CommandMap commandMap) throws Exception{
     	ModelAndView mv= new ModelAndView("external/test");
-    	pmd.logging("[LOG] EXTERNAL CONNECT TEST");
     	
     	/*------------------------------------------------------------------*/
     	/*							파라미터 체크 --			  			*/
@@ -244,10 +255,9 @@ public class ExternalController {
      * @throws Exception																									*
      *******************************************************************************************************/
     @SuppressWarnings("unchecked")
-	@RequestMapping(value="/external/select.do")
+	@RequestMapping(value="/external/contactSelect.do")
     public ModelAndView contactSelect(HttpServletRequest request, HttpServletResponse response, CommandMap commandMap) throws Exception{
     	ModelAndView mv= new ModelAndView("external/test");
-    	pmd.logging("[LOG] EXTERNAL CONNECT TEST");
     	
     	/*------------------------------------------------------------------*/
     	/*							파라미터 체크 --			  			*/

@@ -16,6 +16,7 @@ public class ExternalServiceImpl implements ExternalService{
 	@Resource(name="externalDAO")
 	private ExternalDAO externalDAO; 
 	
+	// 연락처 등록
 	@Override
 	public Map<String, Object> registerContact(Map<String, Object> paramMap) {
 		try{
@@ -29,6 +30,7 @@ public class ExternalServiceImpl implements ExternalService{
 		return paramMap;
 	}
 
+	// 연락처 삭제
 	@Override
 	public Map<String, Object> removeContact(Map<String, Object> paramMap) {
 		try{
@@ -42,6 +44,7 @@ public class ExternalServiceImpl implements ExternalService{
 		return paramMap;
 	}
 
+	// 반환용 연락처 목록 가져오기
 	@Override
 	public Map<String, Object> selectContact(Map<String, Object> paramMap) {
 		try{
@@ -54,11 +57,10 @@ public class ExternalServiceImpl implements ExternalService{
 		}
 		return paramMap;
 	}
-	
-	// 연결 테스트
-	
-	// 연락처 목록 가져오기
-	// 연락처 등록
-	// 연락처 삭제
-	
+
+	// 중복체크용 연락처 목록 가져오기
+	@Override
+	public ArrayList<ContactInfoVO> getContactList(Map<String, Object> paramMap) {
+		return (ArrayList<ContactInfoVO>) externalDAO.selectContactList(paramMap);
+	}
 }
