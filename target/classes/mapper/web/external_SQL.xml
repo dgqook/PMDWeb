@@ -5,16 +5,16 @@
 	<resultMap id="contactVO"  type="pmd.common.vo.ContactInfoVO">
 		<result property="name" column="NAME"/>
 		<result property="pnum" column="PNUM"/>
-		<result property="skey" column="SKEY"/>
-		<result property="akey" column="AKEY"/>
+		<result property="unum" column="UNUM"/>
+		<result property="pkey" column="PKEY"/>
 		
 	</resultMap>
 	     
      <!-- 연락처 등록 -->
     <insert id="registerContact" parameterType="hashmap">
         <![CDATA[
-            INSERT INTO CONTACT_INFO(NAME, PNUM, SKEY, AKEY)            	
-            VALUES(#{name},#{pnum},#{skey},#{akey})
+            INSERT INTO CONTACT_INFO(NAME, PNUM, UNUM, PKEY)            	
+            VALUES(#{name},#{pnum},#{unum},#{pkey})
         ]]>
     </insert>
     
@@ -22,13 +22,13 @@
     <delete id="removeContact" parameterType="hashmap">
         <![CDATA[
             DELETE FROM CONTACT_INFO            	
-            WHERE NAME=#{name} AND PNUM=#{pnum} AND SKEY=#{skey} AND AKEY=#{akey}
+            WHERE NAME=#{name} AND PNUM=#{pnum} AND UNUM=#{unum} AND PKEY=#{pkey}
         ]]>
     </delete>
     
     <select id="selectContactList" parameterType="hashmap" resultMap="contactVO">
         <![CDATA[
-        	SELECT NAME, PNUM, SKEY, AKEY FROM CONTACT_INFO WHERE SKEY=#{skey} AND AKEY=#{akey}
+        	SELECT NAME, PNUM FROM CONTACT_INFO WHERE UNUM=#{unum} AND PKEY=#{pkey}
         ]]>
     </select>
     

@@ -107,8 +107,8 @@ public class ExternalController {
 	        	
 	        	String name= String.valueOf( data.get("name") );
 	        	String pnum= String.valueOf( data.get("pnum") );
-	        	String skey= String.valueOf( data.get("skey") );
-	        	String akey= String.valueOf( data.get("akey") );
+	        	String unum= String.valueOf( data.get("unum") );
+	        	String pkey= String.valueOf( data.get("pkey") );
 	        	
 	        	Map<String,Object> paramMap= new HashMap<String,Object>();
 	        	
@@ -118,14 +118,14 @@ public class ExternalController {
 	        		
 	        		paramMap.put("name", name);
 	            	paramMap.put("pnum", pnum);
-	            	paramMap.put("skey",skey);
-	            	paramMap.put("akey", akey);
+	            	paramMap.put("unum",unum);
+	            	paramMap.put("pkey", pkey);
 	            	
 	            	// 중복체크 먼저 수행하고 아래 기능 수행 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		        	ArrayList<ContactInfoVO> contactList= externalService.getContactList(paramMap);
 		        	boolean duplicate= false;
 		        	for(ContactInfoVO c: contactList){
-		        		if(c.getName().equals(name) && c.getPnum().equals(pnum) && c.getSkey().equals(skey) && c.getAkey().equals(akey)){
+		        		if(c.getName().equals(name) && c.getPnum().equals(pnum) && c.getUnum().equals(unum) && c.getPkey().equals(pkey)){
 		        			duplicate= true;
 		        		}
 		        	}
@@ -207,8 +207,8 @@ public class ExternalController {
 		    	
 		    	String name= String.valueOf( data.get("name") );
 		    	String pnum= String.valueOf( data.get("pnum") );
-		    	String skey= String.valueOf( data.get("skey") );
-		    	String akey= String.valueOf( data.get("akey") );
+		    	String unum= String.valueOf( data.get("unum") );
+		    	String pkey= String.valueOf( data.get("pkey") );
 		    	
 		    	Map<String,Object> paramMap= new HashMap<String,Object>();
 		    	
@@ -217,8 +217,8 @@ public class ExternalController {
 		    		
 		    		paramMap.put("name", name);
 		        	paramMap.put("pnum", pnum);
-		        	paramMap.put("skey",skey);
-		        	paramMap.put("akey", akey);
+		        	paramMap.put("unum",unum);
+		        	paramMap.put("pkey", pkey);
 		        	
 		        	paramMap= externalService.removeContact(paramMap);
 		        	success= String.valueOf(paramMap.get("success"));
@@ -289,8 +289,8 @@ public class ExternalController {
 	    		JSONObject data= (JSONObject) message.get("data");
 		    	String success= String.valueOf( message.get("success") );
 		    	
-		    	String skey= String.valueOf( data.get("skey"));
-		    	String akey= String.valueOf( data.get("akey"));
+		    	String unum= String.valueOf( data.get("unum"));
+		    	String pkey= String.valueOf( data.get("pkey"));
 		    	
 		    	Map<String,Object> paramMap= new HashMap<String,Object>();
 		    	JSONArray resultData= new JSONArray();
@@ -300,26 +300,32 @@ public class ExternalController {
 		    	if(success.equals("true")){	// 안드로이드 쪽에서 성공 메시지를 받은 경우
 		    		success= null;
 		    		
-		    		paramMap.put("skey",skey);
-			    	paramMap.put("akey", akey);
+		    		paramMap.put("unum",unum);
+			    	paramMap.put("pkey", pkey);
 			    	
 			    	paramMap= externalService.selectContact(paramMap);
 			    	success= String.valueOf(paramMap.get("success"));
 			    	
 			    	if(success.equals("true")){	// 웹서버에서 성공 메시지를 보내는 경우
 				    	ArrayList<ContactInfoVO> contactArray= (ArrayList<ContactInfoVO>) paramMap.get("data");
-				    	for(ContactInfoVO c:contactArray){
-				    		resultDataRow= new JSONObject();
-				    		resultDataRow.put("name", c.getName());
-				    		resultDataRow.put("pnum", c.getPnum());
-				    		resultDataRow.put("akey", c.getAkey());
-				    		resultDataRow.put("skey", c.getSkey());
-				    		
-				    		resultData.add(resultDataRow);
-				    	}
 				    	
-				    	resultJson.put("data", resultData);
-				    	resultJson.put("success", "true");
+				    	if(contactArray.size()==0){
+				    		resultJson.put("data", null);
+					    	resultJson.put("success", "true");
+				    	} else {
+					    	for(ContactInfoVO c:contactArray){
+					    		resultDataRow= new JSONObject();
+					    		resultDataRow.put("name", c.getName());
+					    		resultDataRow.put("pnum", c.getPnum());
+					    		resultDataRow.put("unum", c.getUnum());
+					    		resultDataRow.put("pkey", c.getPkey());
+					    		
+					    		resultData.add(resultDataRow);
+					    	}
+					    	
+					    	resultJson.put("data", resultData);
+					    	resultJson.put("success", "true");
+				    	}
 			    	} else {	// 웹서버에서 실패 메시지를 보내는 경우
 			    		resultJson.put("data", null);
 				    	resultJson.put("success", "false");
