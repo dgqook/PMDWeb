@@ -19,6 +19,9 @@ public interface ExternalService {
 	
 	// 중복체크용 연락처 목록 가져오기
 	ArrayList<ContactInfoVO> getContactList(Map<String, Object> paramMap);
+
+	// 연락처 전부 삭제
+	Map<String, Object> removeAllContact(Map<String, Object> paramMap);
 	
 	
 }

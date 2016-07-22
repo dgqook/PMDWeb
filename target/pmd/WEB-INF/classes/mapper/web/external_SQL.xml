@@ -28,7 +28,7 @@
     
     <select id="selectContactList" parameterType="hashmap" resultMap="contactVO">
         <![CDATA[
-        	SELECT NAME, PNUM FROM CONTACT_INFO WHERE UNUM=#{unum} AND PKEY=#{pkey}
+        	SELECT NAME, PNUM, UNUM, PKEY FROM CONTACT_INFO WHERE UNUM=#{unum} AND PKEY=#{pkey}
         ]]>
     </select>
     

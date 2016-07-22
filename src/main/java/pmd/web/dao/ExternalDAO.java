@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import pmd.common.dao.AbstractDAO;
 import pmd.common.vo.ContactInfoVO;
+import pmd.common.vo.ExContactInfoVO;
 
 @Repository("externalDAO")
 public class ExternalDAO extends AbstractDAO{
@@ -19,9 +20,8 @@ public class ExternalDAO extends AbstractDAO{
 		delete("external.removeContact", map);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public ArrayList<ContactInfoVO> selectContactList(Map<String, Object> map) {
-		return (ArrayList<ContactInfoVO>)selectList("external.selectContactList", map);
+	public ExContactInfoVO selectContactList(Map<String, Object> map) {
+		return (ExContactInfoVO)selectOne("external.selectContactList", map);
 	}
 
 }

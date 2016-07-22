@@ -6,6 +6,17 @@ public class ContactInfoVO {
 	private String unum= "";
 	private String pkey= "";
 	
+	
+	public ContactInfoVO() {
+		super();
+	}
+	public ContactInfoVO(String name, String pnum, String unum, String pkey) {
+		super();
+		this.name = name;
+		this.pnum = pnum;
+		this.unum = unum;
+		this.pkey = pkey;
+	}
 	public String getName() {
 		return name;
 	}

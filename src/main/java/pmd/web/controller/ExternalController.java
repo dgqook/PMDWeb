@@ -121,16 +121,24 @@ public class ExternalController {
 	            	paramMap.put("unum",unum);
 	            	paramMap.put("pkey", pkey);
 	            	
-	            	// 중복체크 먼저 수행하고 아래 기능 수행 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	            	// 중복체크 먼저 수행하고 아래 기능 수행
 		        	ArrayList<ContactInfoVO> contactList= externalService.getContactList(paramMap);
+		        	
 		        	boolean duplicate= false;
+		        	pmd.logging("[target]    "+name+", "+pnum+", "+unum+", "+pkey);
 		        	for(ContactInfoVO c: contactList){
+		        		pmd.logging("[compare] "+c.getName()+", "+c.getPnum()+", "+c.getUnum()+", "+c.getPkey());
+		        		
 		        		if(c.getName().equals(name) && c.getPnum().equals(pnum) && c.getUnum().equals(unum) && c.getPkey().equals(pkey)){
+		        			pmd.logging("중복된 정보가 들어왔다.");
 		        			duplicate= true;
 		        		}
 		        	}
 		        	
 		        	if(!duplicate){		// 중복된 데이터가 존재하지 않는 경우
+		        		pmd.logging("중복된 정보가 없다.");
+		        		contactList.add(new ContactInfoVO(name, pnum, unum, pkey));
+		        		paramMap.put("contactList",contactList);
 		        		paramMap= externalService.registerContact(paramMap);
 		            	success= String.valueOf(paramMap.get("success"));
 		            	
@@ -210,6 +218,7 @@ public class ExternalController {
 		    	String unum= String.valueOf( data.get("unum") );
 		    	String pkey= String.valueOf( data.get("pkey") );
 		    	
+		    	
 		    	Map<String,Object> paramMap= new HashMap<String,Object>();
 		    	
 		    	if(success.equals("true")){
@@ -219,6 +228,9 @@ public class ExternalController {
 		        	paramMap.put("pnum", pnum);
 		        	paramMap.put("unum",unum);
 		        	paramMap.put("pkey", pkey);
+		        	ArrayList<ContactInfoVO> contactList= externalService.getContactList(paramMap);
+			    	paramMap.put("contactList",contactList);
+			    	
 		        	
 		        	paramMap= externalService.removeContact(paramMap);
 		        	success= String.valueOf(paramMap.get("success"));
@@ -310,7 +322,7 @@ public class ExternalController {
 				    	ArrayList<ContactInfoVO> contactArray= (ArrayList<ContactInfoVO>) paramMap.get("data");
 				    	
 				    	if(contactArray.size()==0){
-				    		resultJson.put("data", null);
+				    		resultJson.put("data", resultData);
 					    	resultJson.put("success", "true");
 				    	} else {
 					    	for(ContactInfoVO c:contactArray){
