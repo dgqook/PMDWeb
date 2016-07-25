@@ -700,12 +700,14 @@ public class WorkController {
     	
     		///// 파라미터 정보 가져오기 /////
     		String swName= request.getParameter("swName");
+    		String swFile= request.getParameter("swFile");
     		
-    		if(swName!=null && !swName.equals("")){
+    		if(swName!=null && !swName.equals("") && swFile!=null && !swFile.equals("")){
     			///// swName 값이 있는 경우 아래 작업 진행 /////
     			
     			Map<String,Object> paramMap= new HashMap<String,Object>();
     			paramMap.put("swName", swName);
+    			paramMap.put("swFile", swFile);
     			
     			workService.addFreeSoftware(paramMap);
     			response.sendRedirect(PMDUtil.PMD_URL+"/web/work/companiesInfo.do");

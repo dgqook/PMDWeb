@@ -22,6 +22,7 @@
      <!-- 연락처 등록 -->
     <insert id="registerContact" parameterType="hashmap">
         <![CDATA[
+        USE SAFETYDB
             INSERT INTO CONTACT_INFO(UNUM, PKEY, NAME1, PNUM1, NAME2, PNUM2, NAME3, PNUM3, NAME4, PNUM4, NAME5, PNUM5)            	
             VALUES(#{unum},#{pkey},#{name1},#{pnum1},#{name2},#{pnum2},#{name3},#{pnum3},#{name4},#{pnum4},#{name5},#{pnum5})
         ]]>
@@ -30,6 +31,7 @@
      <!-- 연락처 삭제 -->
     <delete id="removeContact" parameterType="hashmap">
         <![CDATA[
+        USE SAFETYDB
             DELETE FROM CONTACT_INFO            	
             WHERE UNUM=#{name}
         ]]>
@@ -37,6 +39,7 @@
     
     <select id="selectContactList" parameterType="hashmap" resultMap="exContactVO">
         <![CDATA[
+        USE SAFETYDB
         	SELECT * FROM CONTACT_INFO WHERE PKEY=#{pkey}
         ]]>
     </select>

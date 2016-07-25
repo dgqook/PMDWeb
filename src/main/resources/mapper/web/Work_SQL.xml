@@ -23,6 +23,7 @@
 	<resultMap id="softwareInfoVO" type="pmd.common.vo.SoftwareInfoVO">
 		<result property="userId" column="USER_ID"/>
 		<result property="swName" column="SW_NAME"/>
+		<result property="swFile" column="SW_FILE"/>
 	</resultMap>
 	<resultMap id="ownedSoftware" type="pmd.common.vo.ExpiryManageVO">
 		<result property="userId" column="USER_ID"/>
@@ -187,8 +188,7 @@
             	SW_FILE
             FROM
                 INSTALLED_SW_LIST
-            GROUP BY
-            	SW_NAME
+           
             ORDER BY
             	INST_SER DESC
         ]]>
@@ -198,11 +198,9 @@
     <select id="getFreeSoftwareList" parameterType="hashmap" resultMap="softwareInfoVO">
         <![CDATA[
             SELECT
-            	SW_NAME
+            	SW_NAME, SW_FILE
             FROM
                 FREE_SW_LIST
-            GROUP BY
-            	SW_NAME
             ORDER BY
             	FREE_SER DESC
         ]]>
@@ -211,8 +209,8 @@
     <!-- 무료 소프트웨어 등록 -->
     <insert id="addFreeSoftware" parameterType="hashmap">
     	<![CDATA[
-    		INSERT INTO FREE_SW_LIST(SW_NAME)
-    		VALUES(#{swName})
+    		INSERT INTO FREE_SW_LIST(SW_NAME, SW_FILE)
+    		VALUES(#{swName}, #{swFile})
     	]]>
     </insert>
     
