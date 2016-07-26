@@ -152,6 +152,10 @@ public class WorkDAO extends AbstractDAO{
 		insert("work.insertCoordyExpHist",paramMap);
 	}
 
+	public void addFreeSoftwareList(Map<String, Object> paramMap) {
+		insert("work.addFreeSoftwareList",paramMap);
+	}
+
 	
 	
 	

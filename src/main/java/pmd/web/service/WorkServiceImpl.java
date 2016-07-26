@@ -135,5 +135,11 @@ public class WorkServiceImpl implements WorkService{
 	}
 
 	
+	@Override
+	public void addFreeSoftwareList(Map<String, Object> paramMap) {
+		workDAO.addFreeSoftwareList(paramMap);
+	}
+
+	
 	
 }

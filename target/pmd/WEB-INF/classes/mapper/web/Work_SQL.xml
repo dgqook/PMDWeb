@@ -24,6 +24,7 @@
 		<result property="userId" column="USER_ID"/>
 		<result property="swName" column="SW_NAME"/>
 		<result property="swFile" column="SW_FILE"/>
+		<result property="instSer" column="INST_SER"/>
 	</resultMap>
 	<resultMap id="ownedSoftware" type="pmd.common.vo.ExpiryManageVO">
 		<result property="userId" column="USER_ID"/>
@@ -185,7 +186,8 @@
             SELECT
             	USER_ID,
             	SW_NAME,
-            	SW_FILE
+            	SW_FILE,
+            	INST_SER
             FROM
                 INSTALLED_SW_LIST
            
@@ -213,6 +215,21 @@
     		VALUES(#{swName}, #{swFile})
     	]]>
     </insert>
+    
+    <!-- 무료 소프트웨어 목록으로 추가 -->
+    <insert id="addFreeSoftwareList" parameterType="hashmap">
+    	<![CDATA[
+    		INSERT INTO FREE_SW_LIST(SW_NAME, SW_FILE)
+    		VALUES
+    	]]>
+   		<foreach collection="list" item="item" separator=",">
+   		<![CDATA[
+   			(#{item.swName}, #{item.swFile})
+   		]]>
+   		</foreach>
+    </insert>
+    
+    
     
     <!-- 유료 소프트웨어 등록 -->
     <insert id="addChargedSoftware" parameterType="hashmap">
@@ -257,4 +274,6 @@
     		VALUES(#{workerId},#{userId},#{fromExpiryDate},#{toExpiryDate},CURDATE())
     	]]>
     </insert>
+    
+    
 </mapper>

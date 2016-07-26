@@ -692,29 +692,52 @@ public class WorkController {
     		mv.setViewName("/main/login");
     		response.sendRedirect(PMDUtil.PMD_URL);
     		
-    	}else{	
+    	}else{
     		////////////// 로그인 성공 //////////////
     		/*--------------------------------------------------------------------------*/
     		/*						 	기능 구현 부분 --							*/
     		/*--------------------------------------------------------------------------*/
-    	
-    		///// 파라미터 정보 가져오기 /////
-    		String swName= request.getParameter("swName");
-    		String swFile= request.getParameter("swFile");
     		
-    		if(swName!=null && !swName.equals("") && swFile!=null && !swFile.equals("")){
-    			///// swName 값이 있는 경우 아래 작업 진행 /////
+    		String type= request.getParameter("type");
+    		
+    		if(type!=null && type.equals("list")){
+    			String chk[] = request.getParameterValues("delChk");
     			
-    			Map<String,Object> paramMap= new HashMap<String,Object>();
-    			paramMap.put("swName", swName);
-    			paramMap.put("swFile", swFile);
+    			Map<String, Object> paramMap= new HashMap<String,Object>();
     			
-    			workService.addFreeSoftware(paramMap);
-    			response.sendRedirect(PMDUtil.PMD_URL+"/web/work/companiesInfo.do");
+    			ArrayList<SoftwareInfoVO> delList= new ArrayList<SoftwareInfoVO>();
+    			ArrayList<SoftwareInfoVO> instList= workService.getRecentInstalledSw(paramMap);
     			
-    		}else{
-    			///// swName 값이 없는 경우 예외처리 /////
-    			mv.addObject("servletMessage","비정상적인 접근입니다.");
+    			for(String o:chk){
+    				for(SoftwareInfoVO s:instList){
+    					if(o.equals(s.getInstSer())){
+    						delList.add(s);
+    					}
+    				}
+        		}
+    			
+    			paramMap.put("list", delList);
+    			workService.addFreeSoftwareList(paramMap);
+    			
+    		} else {
+	    		///// 파라미터 정보 가져오기 /////
+	    		String swName= request.getParameter("swName");
+	    		String swFile= request.getParameter("swFile");
+	    		
+	    		if(swName!=null && !swName.equals("") && swFile!=null && !swFile.equals("")){
+	    			///// swName 값이 있는 경우 아래 작업 진행 /////
+	    			
+	    			Map<String,Object> paramMap= new HashMap<String,Object>();
+	    			paramMap.put("swName", swName);
+	    			paramMap.put("swFile", swFile);
+	    			
+	    			workService.addFreeSoftware(paramMap);
+	    			response.sendRedirect(PMDUtil.PMD_URL+"/web/work/companiesInfo.do");
+	    			
+	    		}else{
+	    			///// swName 값이 없는 경우 예외처리 /////
+	    			mv.addObject("servletMessage","비정상적인 접근입니다.");
+	    		}
     		}
     		/*--------------------------------------------------------------------------*/
     		/*						 	-- 기능 구현 부분							*/
@@ -1068,7 +1091,7 @@ public class WorkController {
 	    			} else {
 	    				///// 잔여기간 30일 이상 /////
 	    				u.setUserRegDate(u.getUserExpiryDate());
-    					u.setUserExpiryDate("<span style=\"color:white;\">"+diffDays+"일 ("+u.getUserExpiryDate()+")</span>");
+    					u.setUserExpiryDate("<span style=\"color:black;\">"+diffDays+"일 ("+u.getUserExpiryDate()+")</span>");
 	    			}
 	    			userList.add(u);
     			}
