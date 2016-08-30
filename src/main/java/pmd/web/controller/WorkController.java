@@ -176,14 +176,26 @@ public class WorkController {
     			}
     			Sheet sheet = wb.getSheetAt(0);
     			int last = sheet.getLastRowNum();
+    			
+    			// 파일 끝까지 돌림
     			for(int i=0; i<=last; i++){
     				Row row = sheet.getRow(i);
     				WorkDataVO workData = new WorkDataVO();
     				SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd");
+    				
+    				// TYPE 값 가져오기
     				String workDataType = row.getCell(0, Row.CREATE_NULL_AS_BLANK).getStringCellValue();
+    				
+    				// TYPE 값이 null이 아닌경우에만 그 행을 가져오도록 함
     				if( workDataType != null){
     					workData.setType(workDataType);
-    					if(row.getCell(1, Row.CREATE_NULL_AS_BLANK) != null
+    					
+    					// 1. 날짜 값을 그대로 읽은 값이 null이 아닌 경우
+    					// 2. 날짜 값을 읽어 문자열로 반환한 값이 null이 아닌 경우
+    					// 3. 날짜 값이 N이 아닌 경우
+    					// 4. 날짜 값이 빈 칸이 아닌 경우
+    					// 위 조건을 모두 만족한 경우에만 날짜를 읽어옴
+     					if(row.getCell(1, Row.CREATE_NULL_AS_BLANK) != null
     							&& (row.getCell(1, Row.CREATE_NULL_AS_BLANK).toString() != null
 	    							&& !row.getCell(1, Row.CREATE_NULL_AS_BLANK).toString().equals("N")
 	    							&& !row.getCell(1, Row.CREATE_NULL_AS_BLANK).toString().equals("")
@@ -191,6 +203,7 @@ public class WorkController {
     							) {
 								workData.setDate(sdf.format(row.getCell(1, Row.CREATE_NULL_AS_BLANK).getDateCellValue()));
     					} else {
+    						// 위 조건을 만족하지 못하는 경우 현재 날짜 값 넣기
     						workData.setDate(sdf.format(new Date()));
     					}
     					workData.setCompany(row.getCell(2, Row.CREATE_NULL_AS_BLANK).toString());
@@ -213,16 +226,51 @@ public class WorkController {
     					workData.setSeller(row.getCell(9, Row.CREATE_NULL_AS_BLANK).toString());
     					workData.setSerial(row.getCell(10, Row.CREATE_NULL_AS_BLANK).toString());
     					
-    					workData.setCompany(
-    							workData.getCompany().replaceAll("\n", "").replaceAll("\r\n", "").replaceAll("\r", "").replaceAll("'", "`"));
-    					workData.setOwner(
-    							workData.getOwner().replaceAll("\n", "").replaceAll("\r\n", "").replaceAll("\r", "").replaceAll("'", "`"));
-    					workData.setAddress(
-    							workData.getAddress().replaceAll("\n", "").replaceAll("\r\n", "").replaceAll("\r", "").replaceAll("'", "`"));
-    					workData.setProductname(
-    							workData.getProductname().replaceAll("\n", "").replaceAll("\r\n", "").replaceAll("\r", "").replaceAll("'", "`"));
     					
-    					workDataList.add(workData);
+    					// 각 항목 필터링부분
+    					workData.setCompany(
+    							workData.getCompany()
+    								.replaceAll("\n", " ")
+    								.replaceAll("\r\n", " ")
+    								.replaceAll("\r", " ")
+    								.replaceAll("'", "`")
+    								.replaceAll(",", " ")
+    								.replaceAll("\"", "``")
+    								.replaceAll("  ", " ")
+    								);
+    					workData.setOwner(
+    							workData.getOwner().replaceAll("\n", " ")
+								.replaceAll("\r\n", " ")
+								.replaceAll("\r", " ")
+								.replaceAll("'", "`")
+								.replaceAll(",", " ")
+								.replaceAll("\"", "``")
+								.replaceAll("  ", " ")
+								);
+    					workData.setAddress(
+    							workData.getAddress().replaceAll("\n", " ")
+								.replaceAll("\r\n", " ")
+								.replaceAll("\r", " ")
+								.replaceAll("'", "`")
+								.replaceAll(",", " ")
+								.replaceAll("\"", "``")
+								.replaceAll("  ", " ")
+								);
+    					workData.setProductname(
+    							workData.getProductname().replaceAll("\n", " ")
+								.replaceAll("\r\n", " ")
+								.replaceAll("\r", " ")
+								.replaceAll("'", "`")
+								.replaceAll(",", " ")
+								.replaceAll("\"", "``")
+								.replaceAll("  ", " ")
+								);
+    					
+    					if(	! workData.getType().equals("")
+							&& ! workData.getCompany().equals("")
+							&& ! workData.getOwner().equals("")
+							&& ! workData.getAddress().equals(""))
+    							workDataList.add(workData);
     				}					
     			}				
     		}

@@ -22,6 +22,18 @@ public interface ExternalService {
 
 	// 연락처 전부 삭제
 	Map<String, Object> removeAllContact(Map<String, Object> paramMap);
+
+	// 메시지 전송 가능여부 체크
+	Map<String, Object> messageCheck(Map<String, Object> paramMap);
+
+	// 위치 정보 업로드
+	Map<String, Object> locationUpload(Map<String, Object> paramMap);
+
+	// 발송할 메시지 정보 수정
+	Map<String, Object> modifyMessage(Map<String, Object> paramMap);
+
+	// 발송할 메시지 정보 확인
+	Map<String, Object> selectMessage(Map<String, Object> paramMap);
 	
 	
 }

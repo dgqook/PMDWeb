@@ -14,6 +14,7 @@ public class ExContactInfoVO {
 	private String name5= "";
 	private String pnum5= "";
 	private String enabledTime= "";
+	private String messageReq= "";
 	
 	public String getUnum() {
 		return unum;
@@ -92,6 +93,12 @@ public class ExContactInfoVO {
 	}
 	public void setEnabledTime(String enabledTime) {
 		this.enabledTime = enabledTime;
+	}
+	public String getMessageReq() {
+		return messageReq;
+	}
+	public void setMessageReq(String message) {
+		this.messageReq = message;
 	}
 	
 	

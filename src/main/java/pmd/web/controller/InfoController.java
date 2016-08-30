@@ -331,7 +331,7 @@ public class InfoController {
     		paramMap.put("userId", userInfo.getUserId());
     		
     		ArrayList<SoftwareInfoVO> table1= null;
-    		ArrayList<SoftwareInfoVO> rawTable1= infoService.getUserPcList(paramMap);
+    		ArrayList<SoftwareInfoVO> rawTable1= infoService.getUserPcList(paramMap); // 계정에 소속된 모든 소프트웨어/PC 정보 가져오기
     		ArrayList<SoftwareInfoVO> table2= null;
     		ArrayList<SoftwareInfoVO> rawTable2= null;
     		
@@ -346,25 +346,39 @@ public class InfoController {
     			exist=false;
     		}
     		
+    		// 특정 PC만 조회했는지 확인
     		String pcName= request.getParameter("pcName");
     		
+    		// 내용이 없거나 ALL이면 전체 PC 출력
     		if(pcName == null) pcName= "";
     		else{
     			if(pcName.equals("ALL")) pcName="";
     		}
     		
+    		// 전체 PC 소프트웨어를 조회하는 경우
     		if(pcName.equals("")){
-    			table1= new ArrayList<SoftwareInfoVO>();
+    			table1= new ArrayList<SoftwareInfoVO>(); ////////////////////////////////////////TODO WorkController 내용과 비교해서 다른부분 보정할 것. 
     			
     			// 유료 소프트웨어만 가지고 연산하도록 필터링
     			ArrayList<SoftwareInfoVO> chargedList= infoService.getChargedSoftware(paramMap);
+    			
+    			table1= pmd.includeSoftwareBySwName(rawTable1,chargedList);
+    			/*
+    			String temp1= "";
+    			String temp2= "";
     			for(SoftwareInfoVO c: chargedList){
+    				temp1= c.getSwName();
     				for(int i= 0; i<rawTable1.size(); i++){
-    					if(c.getSwName().replaceAll(" ", "").equals(rawTable1.get(i).getSwName().replaceAll(" ", ""))){
-    						table1.add(rawTable1.get(i));
+    					temp2= rawTable1.get(i).getSwName();
+    					if(temp1.replaceAll(" ", "").equals(temp2.replaceAll(" ", ""))){
+    						temp1= c.getSwFile();
+    						temp2= rawTable1.get(i).getSwFile();
+    						if(temp1.replaceAll(" ", "").equals(temp2.replaceAll(" ", "")))
+    							table1.add(rawTable1.get(i));
     					}
     				}
     			}
+    			*/
     			
     			session.setAttribute("dataList", table1);
     		}else{
@@ -374,14 +388,24 @@ public class InfoController {
     			
     			// 유료 소프트웨어만 가지고 연산하도록 필터링
     			ArrayList<SoftwareInfoVO> chargedList= infoService.getChargedSoftware(paramMap);
+    			
+    			table2= pmd.includeSoftwareBySwName(rawTable2,chargedList);
+    			/*
+    			String temp1= "";
+    			String temp2= "";
     			for(SoftwareInfoVO c: chargedList){
+    				temp1= c.getSwName();
     				for(int i= 0; i<rawTable2.size(); i++){
-    					if(c.getSwName().replaceAll(" ", "").equals(rawTable2.get(i).getSwName().replaceAll(" ", ""))){
-    						table2.add(rawTable2.get(i));
+    					temp2= rawTable2.get(i).getSwName();
+    					if(temp1.replaceAll(" ", "").equals(temp2.replaceAll(" ", ""))){
+    						temp1= c.getSwFile();
+    						temp2= rawTable2.get(i).getSwFile();
+    						if(temp1.replaceAll(" ", "").equals(temp2.replaceAll(" ", "")))
+    							table2.add(rawTable2.get(i));
     					}
     				}
     			}
-    			
+    			*/
     			session.setAttribute("dataList", table2);
     		}
     		session.setAttribute("nameList", nameList);
@@ -452,6 +476,8 @@ public class InfoController {
 		        	}
 		        	tiktok++;		// 틱톡 값 증가
 		        }
+		        
+		        messages.add(new SoftwareInfoVO(pcOs,"Pc Operating Service",userId,pcName,pcIp,pcOs,updateDate));
 		      
 		        paramMap.put("pcName", pcName);
 		        ArrayList<SoftwareInfoVO> installList= infoService.getInstalledSoftwareWithPcName(paramMap); 	// DB에 입력된 설치 프로그램 목록 가져오기
@@ -1019,13 +1045,16 @@ public class InfoController {
     		/*						 	기능 구현 부분 --							*/
     		/*--------------------------------------------------------------------------*/
     		String ownSer= "";
+    		String ownExpDate= "";
     		String ownQuantity= "";
     
     		ownSer= request.getParameter("ownSer");
+    		ownExpDate= request.getParameter("ownExpDate");
     		ownQuantity= request.getParameter("ownQuantity");
     		
     		Map<String,Object> paramMap= new HashMap<String,Object>();
     		paramMap.put("ownSer", ownSer);
+    		paramMap.put("ownExpDate", ownExpDate);
     		paramMap.put("ownQuantity", ownQuantity);
     		infoService.doModifyQuantity(paramMap);
     		

@@ -84,6 +84,10 @@
 								</div>
 								제품명 :
 								<input type="text" name="swName" class="form-control input-sm" value="<%=softwareInfo.getSwName() %>" readonly="readonly">
+								<input type="text" class="form-control" placeholder="만료일자를 입력하세요." id="dp1" name="expiryDate" 
+									readonly="readonly" value="<%=softwareInfo.getOwnExpDate() %>" style="margin-top:10px;">	 	
+										<input type="checkbox" name="permanent" value=""
+											<%if(softwareInfo.getOwnExpDate() == null){%> checked="checked"<%} %>> 영구 라이센스
 								보유 수량 :
 								<input id="onlyNumber" type="text" name="ownQuantity" class="form-control input-sm" value="<%=softwareInfo.getOwnQuantity()%>"
 									style="ime-mode:disabled;">
@@ -156,6 +160,13 @@
 	 			window.location.href="${pageContext.request.contextPath}/web/info/manage.do";
 	 		}
 	 	}
+     
+     $(function(){
+    		window.prettyPrint && prettyPrint();
+    		$('#dp1').datepicker({
+    			format: 'yy-mm-dd'
+    		});	
+    	});
      
      function doModify(f){
     	 if(f.ownQuantity.value == null || f.ownQuantity.value == ""){

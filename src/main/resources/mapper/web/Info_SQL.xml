@@ -213,7 +213,8 @@
             SELECT
             	OWN_SER,
             	SW_NAME,
-            	OWN_QUANTITY
+            	OWN_QUANTITY,
+            	OWN_EXP_DATE
             FROM
                 OWNED_SW_LIST
             WHERE
@@ -227,7 +228,7 @@
             UPDATE
             	OWNED_SW_LIST
             SET
-                OWN_QUANTITY = ${ownQuantity}
+                OWN_QUANTITY = ${ownQuantity}, OWN_EXP_DATE=${ownExpDate}
             WHERE
             	OWN_SER = ${ownSer}
         ]]>
