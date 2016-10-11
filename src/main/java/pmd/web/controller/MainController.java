@@ -816,9 +816,21 @@ public class MainController {
         }
         
         if(validate){
-        	mainService.doCreateAccount(joinMap);
-        	mv = new ModelAndView("/main/login");
-            mv.addObject("servletMessage", "정상적으로 가입되었습니다.");
+        	
+        	Map<String,Object> idCheck= mainService.doIdCheck(joinMap);
+        	String checkSuccess= (String)idCheck.get("checkSuccess");
+        	if(checkSuccess.equals("true")){
+        		mainService.doCreateAccount(joinMap);
+            	mv = new ModelAndView("/main/login");
+                mv.addObject("servletMessage", "정상적으로 가입되었습니다.");
+                
+        	}else{
+        		message= "이미 가입된 계정입니다. \n비밀번호를 잊으셨다면 비밀번호 찾기 기능을 이용해주세요.";
+	        	mv = new ModelAndView("/main/createAccount");
+	            mv.addObject("servletMessage", message);
+        	}
+        	
+        	
         }else{
         	mv = new ModelAndView("/main/joinPage");
             mv.addObject("servletMessage", message);
@@ -853,12 +865,19 @@ public class MainController {
     	
         Map<String,Object> resultMap= mainService.doIdCheck(commandMap.getMap());
         
-        boolean validate= true;
-        validate = (Pattern.matches("^[a-zA-Z]{1}[a-zA-Z0-9_]{4,11}$", 
-        				(String)commandMap.get("userId")))? (true) : (false) ;  
-		if(!validate) resultMap.put("checkSuccess", "false");
+        String checkSuccess= (String)resultMap.get("checkSuccess");
+        
+        boolean validate1= true;
+        boolean validate2= true;
+        String result= "true";
+        
+        validate1 = (Pattern.matches("^[a-zA-Z]{1}[a-zA-Z0-9_]{4,11}$", (String)commandMap.get("userId")))? (true) : (false) ;  
+		validate2 = (checkSuccess.equals("true"))? (true) : (false) ;
+				
+		if(!validate1) result= "false";
+		if(!validate2) result= "dupl";
 		
-        PMDUtil.sendResponse(response, (String)resultMap.get("checkSuccess"));
+        PMDUtil.sendResponse(response, result);
         /*--------------------------------------------------------------------------*/
 		/*						 	-- 기능 구현 부분							*/
 		/*--------------------------------------------------------------------------*/
@@ -884,11 +903,17 @@ public class MainController {
 		/*						 	기능 구현 부분 --							*/
 		/*--------------------------------------------------------------------------*/
         Map<String,Object> resultMap= mainService.doEmailCheck(commandMap.getMap());
+        String checkSuccess= (String)resultMap.get("checkSuccess");
+        String result= "true";
         
-        boolean validate= true;
-        validate = (Pattern.matches("^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$", 
-        				(String)commandMap.get("userEmail")))? (true) : (false) ;  
-		if(!validate) resultMap.put("checkSuccess", "false");
+        boolean validate1= true;
+        boolean validate2= true;
+        
+        validate1 = (Pattern.matches("^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$", (String)commandMap.get("userEmail")))? (true) : (false) ;  
+        validate2 = (checkSuccess.equals("true"))? (true) : (false) ;
+        if(!validate1) result= "false";
+        if(!validate2) result= "dupl";
+        
 		
         PMDUtil.sendResponse(response, (String)resultMap.get("checkSuccess"));
         /*--------------------------------------------------------------------------*/

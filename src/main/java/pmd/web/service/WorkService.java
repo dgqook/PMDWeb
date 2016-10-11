@@ -93,4 +93,10 @@ public interface WorkService {
 	 * @param paramMap
 	 */
 	void insertCoordyExpHist(Map<String, Object> paramMap);
+
+	/**
+	 * 무료 소프트웨어 목록으로 등록
+	 * @param paramMap
+	 */
+	void addFreeSoftwareList(Map<String, Object> paramMap);
 }

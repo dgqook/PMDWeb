@@ -351,8 +351,10 @@
 			
 			      function drawTable() {
 			        var data = new google.visualization.DataTable();
+			        data.addColumn('string', '선택');
 			        data.addColumn('string', '계정');
 			        data.addColumn('string', '소프트웨어명');
+			        data.addColumn('string', '파일명');
 			        data.addColumn('string', '');
 			        data.addColumn('string', '');
 			        
@@ -362,8 +364,10 @@
 							for(int i=0; i<swList.size(); i++){
 						%>
 								[
+								 '<label style="width:100%; height:100%;"><input type="checkbox" name="delChk" value="<%=swList.get(i).getInstSer()%>"></label>',
 								 '<%=swList.get(i).getUserId()%>',
 								 '<%=swList.get(i).getSwName()%>',
+								 '<%=swList.get(i).getSwFile()%>',
 								 '<form>'+
 								 '<input type="button" value="유료등록" onclick="regChargedSw(this.form)">'+
 								 '<input type="hidden" name="swName" value="<%=swList.get(i).getSwName()%>">'+
@@ -394,7 +398,27 @@
 			    </script>
 			    <span id="spanTitle">최근 등록  미분류 소프트웨어</span>
 			    &nbsp;<a href="${pageContext.request.contextPath}/web/work/regChargedSwPage.do?manual=true">직접등록</a>
-			    <div id="table_div2"></div>
+			    &nbsp;<a href="#" onclick="selectDelete()">선택제외</a>
+			    <script type="text/javascript">
+			    	function selectDelete(){
+			    		var f= document.getElementsByName('delForm');
+			    		
+			    		var sum = 0;
+			    		var count = f[0].delChk.length;
+		    		    for(var i=0; i < count; i++ ){
+		    		        if( f[0].delChk[i].checked == true ){
+		    				    sum += 1;
+		    				}
+		    		    }
+		    		    
+		    		    f[0].method="post";
+		    		   	f[0].action="${pageContext.request.contextPath}/web/work/regFreeSw.do?type=list";
+		    		   	f[0].submit();
+			    	}
+			    </script>
+			    <form name="delForm">
+			    	<div id="table_div2"></div>
+			    </form>
 			</div>
 		</div>
 	 </div>

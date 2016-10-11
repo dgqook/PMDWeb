@@ -176,14 +176,26 @@ public class WorkController {
     			}
     			Sheet sheet = wb.getSheetAt(0);
     			int last = sheet.getLastRowNum();
+    			
+    			// 파일 끝까지 돌림
     			for(int i=0; i<=last; i++){
     				Row row = sheet.getRow(i);
     				WorkDataVO workData = new WorkDataVO();
     				SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd");
+    				
+    				// TYPE 값 가져오기
     				String workDataType = row.getCell(0, Row.CREATE_NULL_AS_BLANK).getStringCellValue();
+    				
+    				// TYPE 값이 null이 아닌경우에만 그 행을 가져오도록 함
     				if( workDataType != null){
     					workData.setType(workDataType);
-    					if(row.getCell(1, Row.CREATE_NULL_AS_BLANK) != null
+    					
+    					// 1. 날짜 값을 그대로 읽은 값이 null이 아닌 경우
+    					// 2. 날짜 값을 읽어 문자열로 반환한 값이 null이 아닌 경우
+    					// 3. 날짜 값이 N이 아닌 경우
+    					// 4. 날짜 값이 빈 칸이 아닌 경우
+    					// 위 조건을 모두 만족한 경우에만 날짜를 읽어옴
+     					if(row.getCell(1, Row.CREATE_NULL_AS_BLANK) != null
     							&& (row.getCell(1, Row.CREATE_NULL_AS_BLANK).toString() != null
 	    							&& !row.getCell(1, Row.CREATE_NULL_AS_BLANK).toString().equals("N")
 	    							&& !row.getCell(1, Row.CREATE_NULL_AS_BLANK).toString().equals("")
@@ -191,6 +203,7 @@ public class WorkController {
     							) {
 								workData.setDate(sdf.format(row.getCell(1, Row.CREATE_NULL_AS_BLANK).getDateCellValue()));
     					} else {
+    						// 위 조건을 만족하지 못하는 경우 현재 날짜 값 넣기
     						workData.setDate(sdf.format(new Date()));
     					}
     					workData.setCompany(row.getCell(2, Row.CREATE_NULL_AS_BLANK).toString());
@@ -213,16 +226,51 @@ public class WorkController {
     					workData.setSeller(row.getCell(9, Row.CREATE_NULL_AS_BLANK).toString());
     					workData.setSerial(row.getCell(10, Row.CREATE_NULL_AS_BLANK).toString());
     					
-    					workData.setCompany(
-    							workData.getCompany().replaceAll("\n", "").replaceAll("\r\n", "").replaceAll("\r", "").replaceAll("'", "`"));
-    					workData.setOwner(
-    							workData.getOwner().replaceAll("\n", "").replaceAll("\r\n", "").replaceAll("\r", "").replaceAll("'", "`"));
-    					workData.setAddress(
-    							workData.getAddress().replaceAll("\n", "").replaceAll("\r\n", "").replaceAll("\r", "").replaceAll("'", "`"));
-    					workData.setProductname(
-    							workData.getProductname().replaceAll("\n", "").replaceAll("\r\n", "").replaceAll("\r", "").replaceAll("'", "`"));
     					
-    					workDataList.add(workData);
+    					// 각 항목 필터링부분
+    					workData.setCompany(
+    							workData.getCompany()
+    								.replaceAll("\n", " ")
+    								.replaceAll("\r\n", " ")
+    								.replaceAll("\r", " ")
+    								.replaceAll("'", "`")
+    								.replaceAll(",", " ")
+    								.replaceAll("\"", "``")
+    								.replaceAll("  ", " ")
+    								);
+    					workData.setOwner(
+    							workData.getOwner().replaceAll("\n", " ")
+								.replaceAll("\r\n", " ")
+								.replaceAll("\r", " ")
+								.replaceAll("'", "`")
+								.replaceAll(",", " ")
+								.replaceAll("\"", "``")
+								.replaceAll("  ", " ")
+								);
+    					workData.setAddress(
+    							workData.getAddress().replaceAll("\n", " ")
+								.replaceAll("\r\n", " ")
+								.replaceAll("\r", " ")
+								.replaceAll("'", "`")
+								.replaceAll(",", " ")
+								.replaceAll("\"", "``")
+								.replaceAll("  ", " ")
+								);
+    					workData.setProductname(
+    							workData.getProductname().replaceAll("\n", " ")
+								.replaceAll("\r\n", " ")
+								.replaceAll("\r", " ")
+								.replaceAll("'", "`")
+								.replaceAll(",", " ")
+								.replaceAll("\"", "``")
+								.replaceAll("  ", " ")
+								);
+    					
+    					if(	! workData.getType().equals("")
+							&& ! workData.getCompany().equals("")
+							&& ! workData.getOwner().equals("")
+							&& ! workData.getAddress().equals(""))
+    							workDataList.add(workData);
     				}					
     			}				
     		}
@@ -692,27 +740,52 @@ public class WorkController {
     		mv.setViewName("/main/login");
     		response.sendRedirect(PMDUtil.PMD_URL);
     		
-    	}else{	
+    	}else{
     		////////////// 로그인 성공 //////////////
     		/*--------------------------------------------------------------------------*/
     		/*						 	기능 구현 부분 --							*/
     		/*--------------------------------------------------------------------------*/
-    	
-    		///// 파라미터 정보 가져오기 /////
-    		String swName= request.getParameter("swName");
     		
-    		if(swName!=null && !swName.equals("")){
-    			///// swName 값이 있는 경우 아래 작업 진행 /////
+    		String type= request.getParameter("type");
+    		
+    		if(type!=null && type.equals("list")){
+    			String chk[] = request.getParameterValues("delChk");
     			
-    			Map<String,Object> paramMap= new HashMap<String,Object>();
-    			paramMap.put("swName", swName);
+    			Map<String, Object> paramMap= new HashMap<String,Object>();
     			
-    			workService.addFreeSoftware(paramMap);
-    			response.sendRedirect(PMDUtil.PMD_URL+"/web/work/companiesInfo.do");
+    			ArrayList<SoftwareInfoVO> delList= new ArrayList<SoftwareInfoVO>();
+    			ArrayList<SoftwareInfoVO> instList= workService.getRecentInstalledSw(paramMap);
     			
-    		}else{
-    			///// swName 값이 없는 경우 예외처리 /////
-    			mv.addObject("servletMessage","비정상적인 접근입니다.");
+    			for(String o:chk){
+    				for(SoftwareInfoVO s:instList){
+    					if(o.equals(s.getInstSer())){
+    						delList.add(s);
+    					}
+    				}
+        		}
+    			
+    			paramMap.put("list", delList);
+    			workService.addFreeSoftwareList(paramMap);
+    			
+    		} else {
+	    		///// 파라미터 정보 가져오기 /////
+	    		String swName= request.getParameter("swName");
+	    		String swFile= request.getParameter("swFile");
+	    		
+	    		if(swName!=null && !swName.equals("") && swFile!=null && !swFile.equals("")){
+	    			///// swName 값이 있는 경우 아래 작업 진행 /////
+	    			
+	    			Map<String,Object> paramMap= new HashMap<String,Object>();
+	    			paramMap.put("swName", swName);
+	    			paramMap.put("swFile", swFile);
+	    			
+	    			workService.addFreeSoftware(paramMap);
+	    			response.sendRedirect(PMDUtil.PMD_URL+"/web/work/companiesInfo.do");
+	    			
+	    		}else{
+	    			///// swName 값이 없는 경우 예외처리 /////
+	    			mv.addObject("servletMessage","비정상적인 접근입니다.");
+	    		}
     		}
     		/*--------------------------------------------------------------------------*/
     		/*						 	-- 기능 구현 부분							*/
@@ -1066,7 +1139,7 @@ public class WorkController {
 	    			} else {
 	    				///// 잔여기간 30일 이상 /////
 	    				u.setUserRegDate(u.getUserExpiryDate());
-    					u.setUserExpiryDate("<span style=\"color:white;\">"+diffDays+"일 ("+u.getUserExpiryDate()+")</span>");
+    					u.setUserExpiryDate("<span style=\"color:black;\">"+diffDays+"일 ("+u.getUserExpiryDate()+")</span>");
 	    			}
 	    			userList.add(u);
     			}

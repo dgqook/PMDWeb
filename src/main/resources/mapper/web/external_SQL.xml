@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="external">
+	<resultMap id="exContactVO" type="pmd.common.vo.ExContactInfoVO">
+	    <result property="unum" column="UNUM"/>
+		<result property="pkey" column="PKEY"/>
+		<result property="name1" column="NAME1"/>
+		<result property="pnum1" column="PNUM1"/>
+		<result property="name2" column="NAME2"/>
+		<result property="pnum2" column="PNUM2"/>
+		<result property="name3" column="NAME3"/>
+		<result property="pnum3" column="PNUM3"/>
+		<result property="name4" column="NAME4"/>
+		<result property="pnum4" column="PNUM4"/>
+		<result property="name5" column="NAME5"/>
+		<result property="pnum5" column="PNUM5"/>
+		<result property="enabledTime" column="ENABLED_TIME"/>
+		<result property="messageReq" column="MESSAGE"/>
+	    
+	</resultMap> 
+	     
+     <!-- 연락처 등록 -->
+    <insert id="registerContact" parameterType="hashmap">
+        <![CDATA[
+            INSERT INTO SAFETYDB.CONTACT_INFO(UNUM, PKEY, NAME1, PNUM1, NAME2, PNUM2, NAME3, PNUM3, NAME4, PNUM4, NAME5, PNUM5, MESSAGE)            	
+            VALUES(#{unum},#{pkey},#{name1},#{pnum1},#{name2},#{pnum2},#{name3},#{pnum3},#{name4},#{pnum4},#{name5},#{pnum5},#{messageReq})
+        ]]>
+    </insert>
+    
+     <!-- 연락처 삭제 -->
+    <delete id="removeContact" parameterType="hashmap">
+        <![CDATA[
+            DELETE FROM SAFETYDB.CONTACT_INFO            	
+            WHERE UNUM=#{unum}
+        ]]>
+    </delete>
+    
+    <select id="selectContactList" parameterType="hashmap" resultMap="exContactVO">
+        <![CDATA[
+        	SELECT * FROM SAFETYDB.CONTACT_INFO WHERE PKEY=#{pkey}
+        ]]>
+    </select>
+    
+    <select id="messageCheck" parameterType="hashmap" resultMap="exContactVO">
+        <![CDATA[
+        	SELECT ENABLED_TIME FROM SAFETYDB.CONTACT_INFO WHERE PKEY=#{pkey}
+        ]]>
+    </select>
+    
+    <update id="messageReCheck" parameterType="hashmap">
+        <![CDATA[
+        	UPDATE SAFETYDB.CONTACT_INFO SET ENABLED_TIME = #{enabledTime} WHERE PKEY=#{pkey}
+        ]]>
+    </update>
+    
+    <insert id="locationUpload" parameterType="hashmap">
+        <![CDATA[
+        	INSERT INTO SAFETYDB.LOCATION_INFO(DETECTION_TIME, LATITUDE_VALUE, LONGITUDE_VALUE, PKEY, ACCURACY) 
+				VALUES(#{detectionTime},#{latitude},#{longitude},#{pkey},#{accuracy})
+        ]]>
+    </insert>
+    
+    <update id="modifyMessage" parameterType="hashmap">
+        <![CDATA[
+        	UPDATE SAFETYDB.CONTACT_INFO SET MESSAGE = #{message} WHERE PKEY=#{pkey}
+        ]]>
+    </update>
+    
+    <select id="selectMessage" parameterType="hashmap" resultMap="exContactVO">
+        <![CDATA[
+        	SELECT MESSAGE FROM SAFETYDB.CONTACT_INFO WHERE PKEY=#{pkey}
+        ]]>
+    </select>
+    
+</mapper>

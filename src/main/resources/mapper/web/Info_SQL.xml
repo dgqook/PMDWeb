@@ -25,6 +25,7 @@
             	OWN_SER,
             	USER_ID,
             	SW_NAME,
+            	SW_FILE,
             	SW_VENDOR,
             	OWN_QUANTITY,
             	OWN_EXP_DATE
@@ -44,6 +45,7 @@
             	PC_IP,
             	PC_OS,
             	SW_NAME,
+            	SW_FILE,
             	UPDATE_DATE
             FROM
                 INSTALLED_SW_LIST
@@ -61,6 +63,7 @@
             	PC_IP,
             	PC_OS,
             	SW_NAME,
+            	SW_FILE,
             	UPDATE_DATE
             FROM
                 INSTALLED_SW_LIST
@@ -92,6 +95,7 @@
     			PC_NAME,
     			PC_OS,
     			SW_NAME,
+    			SW_FILE,
     			UPDATE_DATE,
     			PARAM1
     		FROM
@@ -108,6 +112,7 @@
     			PC_NAME,
     			PC_OS,
     			SW_NAME,
+    			SW_FILE,
     			UPDATE_DATE,
     			PARAM1
     		FROM
@@ -208,7 +213,8 @@
             SELECT
             	OWN_SER,
             	SW_NAME,
-            	OWN_QUANTITY
+            	OWN_QUANTITY,
+            	OWN_EXP_DATE
             FROM
                 OWNED_SW_LIST
             WHERE
@@ -222,7 +228,7 @@
             UPDATE
             	OWNED_SW_LIST
             SET
-                OWN_QUANTITY = ${ownQuantity}
+                OWN_QUANTITY = ${ownQuantity}, OWN_EXP_DATE=${ownExpDate}
             WHERE
             	OWN_SER = ${ownSer}
         ]]>

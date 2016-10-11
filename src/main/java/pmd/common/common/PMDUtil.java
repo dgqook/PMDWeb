@@ -167,11 +167,19 @@ public class PMDUtil {
 	public ArrayList<SoftwareInfoVO> excludeSoftwareBySwName(ArrayList<SoftwareInfoVO> targetList, ArrayList<SoftwareInfoVO> filterList){
 		ArrayList<SoftwareInfoVO> result= new ArrayList<SoftwareInfoVO>();
 		boolean isExist= false;
+		String temp1= "";
+		String temp2= "";
 		
 		for(int i=0; i<targetList.size(); i++){ 
 			for(SoftwareInfoVO f: filterList){ 
-				if(targetList.get(i).getSwName().replaceAll(" ", "").equals(f.getSwName().replaceAll(" ", ""))){
-					isExist= true;
+				temp1= targetList.get(i).getSwName();
+				temp2= f.getSwName();
+				if(temp1.replaceAll(" ", "").equals(temp2.replaceAll(" ", ""))){
+					temp1= targetList.get(i).getSwFile();
+					temp2= f.getSwFile();
+					if(temp1.replaceAll(" ", "").equals(temp2.replaceAll(" ", ""))){
+						isExist= true;
+					}
 				}
 			}
 			if(!isExist){
@@ -190,10 +198,18 @@ public class PMDUtil {
 	 *****************************************************************************************************************/
 	public ArrayList<SoftwareInfoVO> includeSoftwareBySwName(ArrayList<SoftwareInfoVO> targetList, ArrayList<SoftwareInfoVO> filterList){
 		ArrayList<SoftwareInfoVO> result= new ArrayList<SoftwareInfoVO>();
+		String temp1= "";
+		String temp2= "";
 		for(SoftwareInfoVO c: filterList){
 			for(int i= 0; i<targetList.size(); i++){
-				if(c.getSwName().replaceAll(" ", "").equals(targetList.get(i).getSwName().replaceAll(" ", ""))){
-					result.add(targetList.get(i));
+				temp1= c.getSwName();
+				temp2= targetList.get(i).getSwName();
+				if(temp1.replaceAll(" ", "").equals(temp2.replaceAll(" ", ""))){
+					temp1= c.getSwFile();
+					temp2= targetList.get(i).getSwFile();
+					if(temp1.replaceAll(" ", "").equals(temp2.replaceAll(" ", ""))){
+						result.add(targetList.get(i));
+					}
 				}
 			}
 		}

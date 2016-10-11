@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="neoguri">
+	<resultMap id="neoguriVO" type="pmd.common.vo.NeoguriVO">
+	    <result property="userId" column="USER_ID"/>
+	    <result property="userPw" column="USER_PW"/>
+	    <result property="userName" column="USER_NAME"/>
+		<result property="taskName" column="TASK_NAME"/>
+		<result property="taskExpl" column="TASK_EXPL"/>
+		<result property="taskDttm" column="TASK_DTTM"/>
+		<result property="setAlarm" column="SET_ALARM"/>
+		<result property="remindAlarm" column="REMIND_ALARM"/>
+		<result property="ontimeAlarm" column="ONTIME_ALARM"/>
+	</resultMap> 
+	     
+    <!-- 사용자에게 속한 일정 정보 조회 -->
+    <select id="selectTasks" parameterType="hashmap" resultMap="neoguriVO">
+        <![CDATA[
+        	SELECT USER_ID,TASK_NAME,TASK_EXPL,TASK_DTTM,SET_ALARM,REMIND_ALARM,ONTIME_ALARM 
+        	FROM NEOGURI.NEOGURI_TASKS
+        	WHERE USER_ID=#{userId}
+        ]]>
+    </select>
+    
+    <!-- 일정 등록 -->
+    <insert id="insertTask" parameterType="hashmap">
+        <![CDATA[
+        	INSERT INTO NEOGURI.NEOGURI_TASKS 
+        		(USER_ID,TASK_NAME,TASK_EXPL,TASK_DTTM,SET_ALARM,REMIND_ALARM,ONTIME_ALARM)
+        	VALUES
+        		(#{userId},#{taskName},#{taskExpl},#{taskDttm},#{setAlarm},#{remindAlarm},#{ontimeAlarm})
+        ]]>
+    </insert>
+    
+    <!-- 일정 삭제 -->
+    <delete id="deleteTask" parameterType="hashmap">
+        <![CDATA[
+        	DELETE FROM NEOGURI.NEOGURI_TASKS 
+        	WHERE USER_ID=#{userId} AND TASK_NAME=#{taskName} AND TASK_DTTM=#{taskDttm}
+        ]]>
+    </delete>
+    
+    <!-- 해당 사용자의 일정 전부 삭제 -->
+    <delete id="deleteTasks" parameterType="hashmap">
+        <![CDATA[
+        	DELETE FROM NEOGURI.NEOGURI_TASKS 
+        	WHERE USER_ID=#{userId}
+        ]]>
+    </delete>
+    
+    <!-- 일정 수정 -->
+    <update id="modifyTask" parameterType="hashmap">
+        <![CDATA[
+        	UPDATE NEOGURI.NEOGURI_TASKS 
+        	SET TASK_NAME=#{taskName}, TASK_EXPL=#{taskExpl}, TASK_DTTM=#{taskDttm}, 
+        		SET_ALARM=#{setAlarm}, REMIND_ALARM=#{remindAlarm}, ONTIME_ALARM=#{ontimeAlarm}
+        		WHERE USER_ID=#{userId} AND TASK_NAME=#{taskName} AND TASK_DTTM=#{taskDttm}
+        ]]>
+    </update>
+    
+    <!-- 사용자 단일 조회 -->
+    <select id="selectUser" parameterType="hashmap" resultMap="neoguriVO">
+        <![CDATA[
+        	SELECT USER_ID, USER_PW, USER_NAME FROM NEOGURI.NEOGURI_USERS 
+        	WHERE USER_ID=#{userId} AND USER_PW=#{userPw}
+        ]]>
+    </select>
+    
+    <!-- 사용자 전체 조회 -->
+    <select id="selectUsers" resultMap="neoguriVO">
+        <![CDATA[
+        	SELECT USER_ID FROM NEOGURI.NEOGURI_USERS
+        ]]>
+    </select>
+    
+    <!-- 사용자 등록 -->
+    <insert id="insertUser" parameterType="hashmap">
+        <![CDATA[
+        	INSERT INTO NEOGURI.NEOGURI_USERS (USER_ID,USER_PW,USER_NAME)
+        	VALUES(#{userId}, #{userPw}, #{userName});
+        ]]>
+    </insert>
+    
+    <!-- 사용자 삭제 -->
+    <delete id="deleteUser" parameterType="hashmap">
+        <![CDATA[
+        	DELETE FROM NEOGURI_USERS
+        	WHERE USER_ID=#{userId} AND USER_PW= #{userPw}
+        ]]>
+    </delete>
+    
+    <!-- 사용자 정보 수정 -->
+    <update id="modifyUser" parameterType="hashmap">
+        <![CDATA[
+        	UPDATE NEOGURI_USERS 
+        	SET USER_PW=#{userPw}, USER_NAME=#{userName} WHERE USER_ID=#{userId};
+        ]]>
+    </update>
+    
+</mapper>

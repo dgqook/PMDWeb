@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 @SuppressWarnings("serial")
 public class SoftwareInfoVO implements Serializable{
+	private String instSer= "";
 	private String ownSer= "";
 	private String swName= "";
 	private String swVendor= "";
@@ -25,6 +26,14 @@ public class SoftwareInfoVO implements Serializable{
 	
 	public String getParam1() {
 		return param1;
+	}
+
+	public String getInstSer() {
+		return instSer;
+	}
+
+	public void setInstSer(String instSer) {
+		this.instSer = instSer;
 	}
 
 	public void setParam1(String param1) {

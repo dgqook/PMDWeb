@@ -108,7 +108,7 @@
 			(
 				#{userId},	LEFT(MD5(#{userPw}),10),'C',		#{userName},#{userEmail},
 				#{userCoName},	#{userCoZip},		#{userCoAddrSys},		#{userCoAddr},
-				#{userTel},	#{userHp},	CURDATE(),		CURDATE(),			CURDATE()
+				#{userTel},	#{userHp},	CURDATE(),		CURDATE(),			CURDATE()+ interval 1 week
 			);
     	]]>
     </insert>
