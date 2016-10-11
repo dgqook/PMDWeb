@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -34,7 +35,7 @@ public class PMDUtil {
 	public static final String REQUEST_MAIL_TO1= "kjs@m-soft.co.kr";
 	public static final String REQUEST_MAIL_TO2= "ar@m-soft.co.kr";
 	public static final String REQUEST_MAIL_ID= "hk@m-soft.co.kr";
-	public static final String REQUEST_MAIL_PW= "a0597063@";
+	public static final String REQUEST_MAIL_PW= "a0597063#";
 	public static final boolean LOG_ENABLE= true;
 
 	
@@ -94,11 +95,30 @@ public class PMDUtil {
 			Entry<String,Object> entry= null;
 			while(iterator.hasNext()){
 				entry= iterator.next();
-				log.debug("key : "+entry.getKey()+", value : "+entry.getValue());
+				if(LOG_ENABLE) log.debug("key : "+entry.getKey()+", value : "+entry.getValue());
 			}
 		}
 	}
-	
+	//-------------------------------------------------------------------------------------
+	/*********************************************************************************************
+	 * 파라미터로 어느 값이 들어왔는지 확인해주는 함수	& 파라미터를 HashMap 형태로 반환		*
+	 * @param commandMap			
+	 * @return 파라미터																		*
+	 *********************************************************************************************/
+	public HashMap<String,Object> getParameter(CommandMap commandMap){
+		HashMap<String,Object> result= null;
+		if(commandMap.isEmpty() == false){
+			result= new HashMap<String,Object>();
+			Iterator<Entry<String,Object>> iterator= commandMap.getMap().entrySet().iterator();
+			Entry<String,Object> entry= null;
+			while(iterator.hasNext()){
+				entry= iterator.next();
+				result.put(entry.getKey(), entry.getValue());
+				log.debug("key : "+entry.getKey()+", value : "+entry.getValue());
+			}
+		}
+		return result;
+	}	
 	/*********************************************************************************************
 	 * 임의의 로그 기록 함수																					*
 	 * @param commandMap																					*
@@ -259,9 +279,9 @@ public class PMDUtil {
 		Long longDiffDays;
 		int diffDays= 0;
 		
-		for(SoftwareInfoVO s:targetList){
-			logging("[만료제거전] 이름: "+s.getSwName()+", 보유개수: "+s.getOwnQuantity());
-		}
+		//for(SoftwareInfoVO s:targetList){
+		//	logging("[만료제거전] 이름: "+s.getSwName()+", 보유개수: "+s.getOwnQuantity());
+		//}
 		
 		// 만료 제품 제거
 		for(int i=0; i<targetList.size(); i++){
@@ -284,11 +304,27 @@ public class PMDUtil {
 			}
 		}
 		
-		for(SoftwareInfoVO s:targetList){
-			logging("  [만료제거후] 이름: "+s.getSwName()+", 보유개수: "+s.getOwnQuantity());
-		}
+		//for(SoftwareInfoVO s:targetList){
+		//	logging("  [만료제거후] 이름: "+s.getSwName()+", 보유개수: "+s.getOwnQuantity());
+		//}
 		return targetList;
 	}
 	//-------------------------------------------------------------------------------------
 	
+	/*****************************************************************************************************************
+	 * null 또는 빈 문자열이 있는 경우 true를 반환한다																			*
+	 * @param strings																													*
+	 * @return																															*
+	 *****************************************************************************************************************/
+	public boolean checkNullBlank(String ...strings){
+		boolean result= false;
+		for(String s:strings){
+			//logging("[PMDUtil] checkNullBlank - check: "+s);
+			if(s == null || s.equals("")){
+				result= true;
+			}
+		}
+		//logging("[PMDUtil] checkNullBlack - result: "+result);
+		return result;
+	}
 }

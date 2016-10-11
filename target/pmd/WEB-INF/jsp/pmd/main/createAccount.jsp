@@ -313,7 +313,7 @@
 	
 	<script type="text/javascript">
 	$(document).on('keyup','#userId',function(){
-		 if ( $('#userId').val().length > 3) {
+		 if ( $('#userId').val().length > 0) {
 			$.post('${pageContext.request.contextPath}/web/main/idCheck.do'
 				,{"userId":$('#userId').val()}
 				,function(data){
@@ -323,8 +323,12 @@
 						$("#idchk").text("  사용 가능");
 						$("#idchk").css('color', 'blue');
 						$("#idChecked").val("true");
-					}else{
+					}else if(data == "false"){
 						$("#idchk").text("  사용 불가");
+						$("#idchk").css('color', 'red');
+						$("#idChecked").val("false");
+					}else {
+						$("#idchk").text("  중복 불가");
 						$("#idchk").css('color', 'red');
 						$("#idChecked").val("false");
 					}
@@ -334,9 +338,34 @@
 			$("#idChecked").val("false");
 		}
 	});
-	
+	$(document).on('keyup','#userPw',function(){
+		 if ( $('#userId').val().length > 0) {
+			$.post('${pageContext.request.contextPath}/web/main/idCheck.do'
+				,{"userId":$('#userId').val()}
+				,function(data){
+					console.log(data);
+					
+					if(data == "true"){
+						$("#idchk").text("  사용 가능");
+						$("#idchk").css('color', 'blue');
+						$("#idChecked").val("true");
+					}else if(data == "false"){
+						$("#idchk").text("  사용 불가");
+						$("#idchk").css('color', 'red');
+						$("#idChecked").val("false");
+					}else {
+						$("#idchk").text("  중복 불가");
+						$("#idchk").css('color', 'red');
+						$("#idChecked").val("false");
+					}
+				})
+		}else{
+			$("#idchk").text("");
+			$("#idChecked").val("false");
+		}
+	});
 	$(document).on('keyup','#userEmail',function(){
-		 if ( $('#userEmail').val().length > 5) {
+		 if ( $('#userEmail').val().length > 0) {
 			$.post('${pageContext.request.contextPath}/web/main/emailCheck.do'
 				,{"userEmail":$('#userEmail').val()}
 				,function(data){
@@ -346,8 +375,12 @@
 						$("#emailchk").text("  사용 가능");
 						$("#emailchk").css('color', 'blue');
 						$("#emailChecked").val("true");
-					}else{
+					}else if(data == "false"){
 						$("#emailchk").text("  사용 불가");
+						$("#emailchk").css('color', 'red');
+						$("#emailChecked").val("false");
+					}else{
+						$("#emailchk").text("  중복 불가");
 						$("#emailchk").css('color', 'red');
 						$("#emailChecked").val("false");
 					}

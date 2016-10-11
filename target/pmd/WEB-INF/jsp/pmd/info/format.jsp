@@ -166,12 +166,15 @@
 			window.location.href='/web/info/summary.do';
 		}
 		function goPresent(){
+			showProgress();
 			window.location.href='${pageContext.request.contextPath}/web/info/present.do';
 		}
 		function goManage(){
+			showProgress();
 			window.location.href='${pageContext.request.contextPath}/web/info/manage.do';
 		}
 		function goSearch(){
+			showProgress();
 			window.location.href='${pageContext.request.contextPath}/web/info/search.do';
 		}
 		function goDownload(){

@@ -80,10 +80,12 @@ public class MainServiceImpl implements MainService{
 		    //int diffDays = toIntExact(diff / (24 * 60 * 60 * 1000));
 		    Long longDiffDays= diff / (24 * 60 * 60 * 1000);
 		    int diffDays= longDiffDays.intValue();
+		    resultMap.put("diffDays", String.valueOf(diffDays));
 		    
 		    if(endDate.getTime() >= beginDate.getTime()){	// 사용 기간이 남은 경우
 				if(diffDays<30){
 					resultMap.put("restOfExpiry", "사용기간이 <span style='color:red;'>"+diffDays+"</span>일 남았습니다.");
+					
 				}else{
 					resultMap.put("restOfExpiry", "사용기간이 <span style='color:white;'>"+diffDays+"</span>일 남았습니다.");
 				}

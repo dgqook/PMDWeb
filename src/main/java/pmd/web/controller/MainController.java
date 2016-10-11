@@ -486,8 +486,8 @@ public class MainController {
 	        	
 	        	 // 메일 관련 정보
 	            String host = "smtp.worksmobile.com";
-	            final String username = "hk@m-soft.co.kr";
-	            final String password = "a0597063!";		
+	            final String username = PMDUtil.REQUEST_MAIL_ID;
+	            final String password = PMDUtil.REQUEST_MAIL_PW;		
 	            int port=465;
 	             
 	            // 메일 내용
@@ -517,7 +517,7 @@ public class MainController {
 	            session.setDebug(true); //for debug
 	              
 	            Message mimeMessage = new MimeMessage(session);
-	            mimeMessage.setFrom(new InternetAddress("hk@m-soft.co.kr"));
+	            mimeMessage.setFrom(new InternetAddress(PMDUtil.REQUEST_MAIL_ID));
 	            mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
 	            mimeMessage.setSubject(subject);
 	            mimeMessage.setText(body);

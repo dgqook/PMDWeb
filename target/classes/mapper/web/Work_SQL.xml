@@ -75,7 +75,8 @@
         ]]>
     </select>
     
-     <!-- 보유 소프트웨어 조회 - 업체명 -->
+    
+    <!-- 보유 소프트웨어 조회 - 업체명 -->
     <select id="getSearchResultByCompany" parameterType="hashmap" resultMap="workDataVO">
         <![CDATA[
             SELECT
@@ -124,7 +125,30 @@
             	DATE DESC
         ]]>
     </select>
-    
+     <!-- 보유 소프트웨어 조회 - 업체명 완전 일치 -->
+    <select id="getSearchResultByFit" parameterType="hashmap" resultMap="workDataVO">
+        <![CDATA[
+            SELECT
+            	TYPE,
+            	DATE,
+            	COMPANY,
+            	OWNER,
+            	ADDRESS,
+            	PRODUCTNAME,
+            	VERSION,
+            	NUMBER,
+            	LICENSE,
+            	SELLER,
+            	SERIAL,
+            	COUNT
+            FROM
+                EXCEL
+            WHERE
+                COMPANY = '${searchKeyword}'
+            ORDER BY
+            	DATE DESC
+        ]]>
+    </select>
     <!-- 엑셀 데이터 입력 -->
     <insert id="insertExcelData" parameterType="hashmap">
     	<![CDATA[

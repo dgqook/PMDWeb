@@ -1,7 +1,9 @@
 package pmd.web.dao;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Repository;
 
@@ -78,6 +80,10 @@ public class InfoDAO extends AbstractDAO{
 		insert("info.updateUserPcSwList", map);
 	}
 	
+	public void modifyUserPcSwList(Map<String, Object> map) {
+		update("info.modifyUserPcSwList", map);
+	}
+	
 	public void deleteUserPcSwList(Map<String, Object> map) {
 		delete("info.deleteUserPcSwList", map);
 	}
@@ -101,6 +107,14 @@ public class InfoDAO extends AbstractDAO{
 	}
 
 	/**
+	 * 소프트웨어 등록 > 등록 1
+	 * @param paramMap
+	 */
+	public void doRegisterASoftware(Map<String, Object> paramMap) {
+		insert("info.doRegisterASoftware", paramMap);
+	}
+	
+	/**
 	 * 소프트웨어 등록 > 수량 추가
 	 * @param paramMap
 	 */
@@ -114,6 +128,13 @@ public class InfoDAO extends AbstractDAO{
 	 */
 	public void doDeleteSoftware(Map<String, Object> paramMap) {
 		delete("info.doDeleteSoftware", paramMap);
+	}
+	/**
+	 * 소프트웨어 관리 > 소프트웨어 정보 삭제1
+	 * @param paramMap
+	 */
+	public void doDeleteASoftware(Map<String, Object> paramMap) {
+		delete("info.doDeleteASoftware", paramMap);
 	}
 
 	/**
@@ -131,6 +152,41 @@ public class InfoDAO extends AbstractDAO{
 	public void doModifyQuantity(Map<String, Object> paramMap) {
 		update("info.doModifyQuantity",paramMap);
 	}
+
+	public void setLegalSoftware(String userId, String sL_Code, String sL_PcName, String sL_SwName, String sL_SwFile) {
+		Map<String, Object> paramMap= new HashMap<String, Object>();
+		paramMap.put("userId", userId);
+		paramMap.put("code", sL_Code);
+		paramMap.put("pcName", sL_PcName);
+		paramMap.put("swName", sL_SwName);
+		paramMap.put("swFile", sL_SwFile);
+		update("info.setLegalSoftware", paramMap);
+	}
+
+	public int getNumberOfLegal(Map<String, Object> paramMap) {
+		String result= (String) selectOne("info.getNumberOfLegal",paramMap);
+		if(result == null || result.equals("") || !Pattern.matches("^[0-9]*$", result)) result= "0";
+		return Integer.parseInt(result);
+	}
+
+
+	public int getNumberOfChecked(Map<String, Object> paramMap) {
+		String result= (String) selectOne("info.getNumberOfChecked",paramMap);
+		if(result == null || result.equals("") || !Pattern.matches("^[0-9]*$", result)) result= "0";
+		return Integer.parseInt(result);
+	}
+
+	@SuppressWarnings("unchecked")
+	public ArrayList<SoftwareInfoVO> getManageList(Map<String, Object> paramMap) {
+		return (ArrayList<SoftwareInfoVO>)selectList("info.getManageList", paramMap);
+	}
+
+	public String getUserEmailAddress(HashMap<String, Object> paramMap) {
+		HashMap map= (HashMap<String,Object>)selectOne("info.getUserEmailAddress", paramMap);
+		return (String) map.get("USER_EMAIL");
+	}
+
+	
 
 	
 }
