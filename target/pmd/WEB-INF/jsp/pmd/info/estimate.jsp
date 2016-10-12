@@ -47,6 +47,9 @@
 
 <body id="mimin" class="dashboard"  onload="servletMessage()">
 <input type="hidden" name="servletMessage" value= "${servletMessage}"/>
+<div id="progressDiv" style="background:'#000000'; filter:alpha(opacity:'60'); background:rgba(0,0,0,0.6); width:100%; height:100%; z-index: 1000; display:none; position:absolute;">
+		<img src="${pageContext.request.contextPath}/asset/images/loading_gif.gif" style="position:absolute; width:400px; height:300px; border:0; top:50%; left:50%; margin:-200px 0 0 -150px;">
+	</div>
       <!-- start: Header -->
         <jsp:include page="header.jsp" flush="false"/>
       <!-- end: Header -->
@@ -172,12 +175,15 @@
  	}
      
      function goSummary(){
+    	 showProgress();
 		 window.location.href='${pageContext.request.contextPath}/web/info/summary.do';
 	 }
 	 function goPresent(){
+		showProgress();
 	 	window.location.href='${pageContext.request.contextPath}/web/info/present.do';
 	 }
 	 function goManage(){
+		 showProgress();
 	 	window.location.href='${pageContext.request.contextPath}/web/info/manage.do';
 	 }
 		
@@ -293,6 +299,15 @@ $(function(){
     	function number_filter(str_value){
     		return str_value.replace(/[^0-9]/gi, ""); 
     	}
+    	
+    	function showProgress(){
+       	 var pdiv= document.getElementById("progressDiv");
+       	 pdiv.style.display="block";
+        }
+        function hideProgress(){
+       	 var pdiv= document.getElementById("progressDiv");
+       	 pdiv.style.display="none";
+        }
 	</script>
      
   <!-- end: Javascript -->

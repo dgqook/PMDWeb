@@ -43,6 +43,15 @@ public class WorkDAO extends AbstractDAO{
 	public ArrayList<WorkDataVO> getSearchResultByOwner(Map<String, Object> paramMap) {
 		return (ArrayList<WorkDataVO>)selectList("work.getSearchResultByOwner",paramMap);
 	}
+	/**
+	 * 필터 검색 결과 반환 - 완전일치
+	 * @param paramMap
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public ArrayList<WorkDataVO> getSearchResultByFit(Map<String, Object> paramMap) {
+		return (ArrayList<WorkDataVO>)selectList("work.getSearchResultByFit",paramMap);
+	}
 
 	/**
 	 * 엑셀 데이터 업로드
@@ -155,6 +164,8 @@ public class WorkDAO extends AbstractDAO{
 	public void addFreeSoftwareList(Map<String, Object> paramMap) {
 		insert("work.addFreeSoftwareList",paramMap);
 	}
+
+	
 
 	
 	

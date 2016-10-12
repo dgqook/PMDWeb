@@ -1,6 +1,7 @@
 package pmd.web.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import pmd.common.vo.SoftwareInfoVO;
@@ -54,6 +55,12 @@ public interface InfoService {
 	 * @return
 	 */
 	void updateUserPcSwList(Map<String,Object> map);
+	
+	/**
+	 * pc 소프트웨어 목록 갱신 by pmd client
+	 * @param paramMap
+	 */
+	void modifyUserPcSwList(Map<String, Object> paramMap);
 
 	/**
 	 * 소프트웨어 등록 > 검색 결과 반환
@@ -67,6 +74,12 @@ public interface InfoService {
 	 * @param paramMap
 	 */
 	void doRegisterSoftware(Map<String, Object> paramMap);
+	
+	/**
+	 * 보유 소프트웨어 등록 1
+	 * @param paramMap
+	 */
+	void doRegisterASoftware(Map<String, Object> paramMap);
 
 	/**
 	 * 보유 소프트웨어 수량 추가
@@ -96,5 +109,37 @@ public interface InfoService {
 	 * @return
 	 */
 	void doModifyQuantity(Map<String, Object> paramMap);
+
+	
+	void setLegalSoftware(String userId, String sL_Code, String sL_PcName, String sL_SwName, String sL_SwFile);
+
+	/**
+	 * 정품 소프트웨어의 개수를 반환한다.
+	 * @param sL_SwName
+	 * @return
+	 */
+	int getNumberOfLegal(String userId, String sL_SwName);
+
+	/**
+	 * 체크된 정품 소프트웨어의 개수를 반환한다.
+	 * @param sL_SwName
+	 * @return
+	 */
+	int getNumberOfChecked(String userId, String sL_SwName, String sL_SwFile);
+
+	/**
+	 * 계정 - 소프트웨어 - 미등록개수 정보가 등록된 관리목록 불러오기
+	 * @param paramMap
+	 * @return
+	 */
+	ArrayList<SoftwareInfoVO> getManageList(Map<String, Object> paramMap);
+
+
+	void doDeleteASoftware(Map<String, Object> paramMap);
+
+	String getUserEmailAddress(HashMap<String, Object> paramMap);
+
+	
+	
 	
 }

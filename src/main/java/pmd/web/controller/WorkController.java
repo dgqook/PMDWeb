@@ -113,8 +113,10 @@ public class WorkController {
     		ArrayList<WorkDataVO> workDataList= null;
     		String searchKeyword= request.getParameter("searchKeyword");
     		String searchType= request.getParameter("searchType");
-    		if(searchKeyword==null || searchKeyword.equals("") || searchType == null || searchType.equals("")){
+    		if(		(searchKeyword==null || searchKeyword.equals("")	)
+    				|| (searchType == null || searchType.equals(""))		){
     			
+    			pmd.logging("no keyword");
     			///// 키워드가 없는 경우 /////
     			workDataList= new ArrayList<WorkDataVO>();
     			WorkDataVO temp= new WorkDataVO();
@@ -122,7 +124,7 @@ public class WorkController {
     			workDataList.add(temp);
     	
     		}else{
-    	
+    			pmd.logging("type: "+searchType);
     			///// 키워드가 있는 경우 /////
     			Map<String,Object> paramMap= new HashMap<String,Object>();
     			paramMap.put("searchKeyword", searchKeyword);

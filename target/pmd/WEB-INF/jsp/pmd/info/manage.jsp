@@ -47,6 +47,8 @@
 
 <body id="mimin" class="dashboard" onload="servletMessage()">
 <input type="hidden" name="servletMessage" value= "${servletMessage}"/>
+
+
       <!-- start: Header -->
         <jsp:include page="header.jsp" flush="false"/>
       <!-- end: Header -->
@@ -77,10 +79,10 @@
                             <div class="panel-body">
                               <form name="estimateForm">
                               	<div style="margin-bottom:10px;">
-								<input type="button" class="btn btn-primary" onclick="swRegister()" value="제품 등록">
-								<input type="button" class="btn btn-primary" onclick="swDelete()" value="선택 삭제">
-								<input type="button" class="btn btn-primary" onclick="swRequest()" value="보유 제품 연장">
+								<input type="button" class="btn btn-primary" onclick="swRegister()" value="제품 직접 등록">
 								<input type="button" class="btn btn-primary" onclick="swEstimate()" value="신규 제품 견적">
+								<input type="button" class="btn btn-primary" onclick="swDelete()" value="선택 정보 삭제" style="margin-left:50px;">
+								<input type="button" class="btn btn-primary" onclick="swRequest()" value="선택 제품 견적">
 								</div>
 								
 								<div id="table_div"></div>
@@ -136,6 +138,7 @@
     <!-- custom -->
      <script src="${pageContext.request.contextPath}/asset/js/main.js"></script>
      <script>
+     	showProgress();
 	     google.charts.load('current', {'packages':['table']});
 	     google.charts.setOnLoadCallback(drawTable);
 	
@@ -157,7 +160,15 @@
 				 '</label>',
 				 '<%=ownList.get(i).getSwName()%>',  '<%=ownList.get(i).getSwVendor()%>', 
 				 '<%=ownList.get(i).getOwnQuantity()%>','<%=ownList.get(i).getOwnExpDate()%>',
-				 '<input type="button" value="수정" onclick="swMod(<%=ownList.get(i).getOwnSer()%>)">'
+				 '<form>'
+				 +'<input type="hidden" name="ownSer" value="<%=ownList.get(i).getOwnSer()%>">'
+				 +'<input type="hidden" name="swName" value="<%=ownList.get(i).getSwName()%>">'
+				 +'<input type="hidden" name="swVendor" value="<%=ownList.get(i).getSwVendor()%>">'
+				 +'<input type="hidden" name="ownQuantity" value="<%=ownList.get(i).getOwnQuantity()%>">'
+				 +'<input type="hidden" name="swFile" value="<%=ownList.get(i).getSwFile()%>">'
+				 +'<input type="hidden" name="ownExpDate" value="<%=ownList.get(i).getOwnExpDate()%>">'
+				 +'<input type="button" value="수정" onclick="swMod(this.form)">'
+				 +'</form>'
 				 ]
 			<%
 				if(i!=(ownList.size()-1)){
@@ -172,6 +183,7 @@
 	       var table = new google.visualization.Table(document.getElementById('table_div'));
 	
 	       table.draw(data, {showRowNumber: false, width: '100%', height: '100%', allowHtml: 'true'});
+	       hideProgress();
 	     }
 	     
 	     function swRegister(){
@@ -191,6 +203,7 @@
 	   	  message+="선택한 소프트웨어 보유 정보를 정말 삭제하시겠습니까?";
 	   	  if(count==0){
 	   		  alert("삭제할 소프트웨어가 없습니다.");
+	   		hideProgress();
 	   		  return false;
 	   	  } else {
 	   		  if(!confirm(message)){
@@ -216,6 +229,7 @@
 	   	  message+="선택한 소프트웨어의 견적 정보를 요청하시겠습니까?";
 	   	  if(count==0){
 	   		  alert("선택한 소프트웨어가 없습니다.");
+	   		hideProgress();
 	   		  return false;
 	   	  } else {
 	   		  if(!confirm(message)){
@@ -230,8 +244,11 @@
 	     function swEstimate(){
 	    	 window.location.href="${pageContext.request.contextPath}/web/info/estimatePage.do";
 	     }
-	     function swMod(ser){
-	    	 window.location.href="${pageContext.request.contextPath}/web/info/modifyPage.do?ser="+ser;
+	     function swMod(f){
+	    	 showProgress();
+	    	 f.method="post";
+		   	 f.action="${pageContext.request.contextPath}/web/info/modifyPage.do";
+		   	 f.submit();
 	     }
 	     
 	     
@@ -258,6 +275,7 @@
 	 			v[0].value="";	
 	 		}
 	 	}
+	 	
 	</script>
      
   <!-- end: Javascript -->

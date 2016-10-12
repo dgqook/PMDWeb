@@ -12,6 +12,7 @@
 	if(userInfo == null || restOfExpiry == null) response.sendRedirect(PMDUtil.PMD_URL);
 	@SuppressWarnings("unchecked")
 	SoftwareInfoVO softwareInfo= (SoftwareInfoVO)session.getAttribute("softwareInfo");
+	String modifyMode= (String)session.getAttribute("modifyMode");
 	
 	if(softwareInfo == null) response.sendRedirect(PMDUtil.PMD_URL);
 	
@@ -34,6 +35,8 @@
   <!-- plugins -->
   <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/asset/css/plugins/font-awesome.min.css"/>
   <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/asset/css/plugins/animate.min.css"/>
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" />
+  <link href="${pageContext.request.contextPath}/asset/css/datepicker.css" rel="stylesheet">
   <link href="${pageContext.request.contextPath}/asset/css/style.css" rel="stylesheet">
   
   
@@ -49,6 +52,11 @@
 
 <body id="mimin" class="dashboard" onload="servletMessage()">
 <input type="hidden" name="servletMessage" value= "${servletMessage}"/>
+
+	<div id="progressDiv" style="background:'#000000'; filter:alpha(opacity:'60'); background:rgba(0,0,0,0.6); width:100%; height:100%; z-index: 1000; display:none; position:absolute;">
+		<img src="${pageContext.request.contextPath}/asset/images/loading_gif.gif" style="position:absolute; width:400px; height:300px; border:0; top:50%; left:50%; margin:-200px 0 0 -150px;">
+	</div>
+ 
       <!-- start: Header -->
         <jsp:include page="header.jsp" flush="false"/>
       <!-- end: Header -->
@@ -84,16 +92,17 @@
 								</div>
 								제품명 :
 								<input type="text" name="swName" class="form-control input-sm" value="<%=softwareInfo.getSwName() %>" readonly="readonly">
-								<input type="text" class="form-control" placeholder="만료일자를 입력하세요." id="dp1" name="expiryDate" 
+								<input type="text" class="form-control" placeholder="만료일자를 입력하세요." id="dp1" name="ownExpDate" 
 									readonly="readonly" value="<%=softwareInfo.getOwnExpDate() %>" style="margin-top:10px;">	 	
 										<input type="checkbox" name="permanent" value=""
-											<%if(softwareInfo.getOwnExpDate() == null){%> checked="checked"<%} %>> 영구 라이센스
+											<%if(softwareInfo.getOwnExpDate() == null && modifyMode.equals("own")){%> checked="checked"<%} %>> 영구 라이센스
 								보유 수량 :
 								<input id="onlyNumber" type="text" name="ownQuantity" class="form-control input-sm" value="<%=softwareInfo.getOwnQuantity()%>"
 									style="ime-mode:disabled;">
 								<input type="hidden" name="ownSer" value="<%=softwareInfo.getOwnSer()%>">
-								
-								
+								<input type="hidden" name="swVendor" value="<%=softwareInfo.getSwVendor()%>">
+								<input type="hidden" name="modifyMode" value="<%=modifyMode%>">
+								 
 							   </form>
                             </div>
                         </div>
@@ -110,7 +119,7 @@
       </div>
           <!-- end: content -->
 
-
+		
           
       
       </div>
@@ -143,6 +152,7 @@
 	<!-- !구글차트 -->
 
     <!-- custom -->
+    <script src="${pageContext.request.contextPath}/asset/js/bootstrap-datepicker.js"></script>
      <script src="${pageContext.request.contextPath}/asset/js/main.js"></script>
      <script>
      
@@ -164,7 +174,8 @@
      $(function(){
     		window.prettyPrint && prettyPrint();
     		$('#dp1').datepicker({
-    			format: 'yy-mm-dd'
+    			format: 'yyyy-mm-dd',
+    			startDate: '<%=softwareInfo.getOwnExpDate() %>'
     		});	
     	});
      
@@ -173,13 +184,25 @@
     	 	alert("수량을 입력해주세요.");	 
     	 	return false;
     	 }
+    	 showProgress();
     	 if(!confirm("수정하시겠습니까?")){
     		 return false;
     	 }else{
     		 f.method="POST";
     		 f.action="${pageContext.request.contextPath}/web/info/modify.do";
+    		 
     		 f.submit();
+    		
     	 }
+     }
+     
+     function showProgress(){
+    	 var pdiv= document.getElementById("progressDiv");
+    	 pdiv.style.display="block";
+     }
+     function hideProgress(){
+    	 var pdiv= document.getElementById("progressDiv");
+    	 pdiv.style.display="none";
      }
      
 	</script>

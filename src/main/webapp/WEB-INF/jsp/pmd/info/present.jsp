@@ -14,6 +14,13 @@
 	ArrayList<String> nameList= (ArrayList<String>)session.getAttribute("nameList");
 	@SuppressWarnings("unchecked")
 	ArrayList<SoftwareInfoVO> dataList= (ArrayList<SoftwareInfoVO>)session.getAttribute("dataList");
+	
+	String pcName= (String) session.getAttribute("pcName");
+	session.setAttribute("pcName", "");
+	if(pcName == null || pcName.equals("")) pcName="ALL";
+	
+	String servletMessage= (String) session.getAttribute("servletMessage");
+	session.setAttribute("servletMessage", "");
 %>
    
 <!DOCTYPE html>
@@ -56,6 +63,7 @@
           <!-- end: Left Menu -->
 
           <!-- start:content -->
+          <input type="hidden" name="servletMessage" value="<%=servletMessage%>"/>
           <div id="content">
           <div class="col-md-12 padding-0" style="margin-top:20px;">
             <div class="col-md-12 padding-0">
@@ -88,7 +96,7 @@
                		  
                         <div class="panel">
                            <div class="panel-heading-white panel-heading text-center">
-                              <h4>사용 현황</h4>
+                              <h4>사용 현황</h4><span style="text-align: right;"><input type="button" onclick="downloadPresentExcel()" value="엑셀 내려받기"></span>
                             </div>
                             <div class="panel-body">
                               <div id="table_div2" style="margin:0 auto;"></div>
@@ -141,6 +149,17 @@
     <!-- custom -->
      <script src="${pageContext.request.contextPath}/asset/js/main.js"></script>
      <script>
+     (function(){
+		var servMsg= document.getElementsByName("servletMessage");
+		if(servMsg[0].value != null && servMsg[0].value != "" && servMsg[0].value != 'null'){
+			alert(servMsg[0].value);
+		}
+       })();
+     
+     function downloadPresentExcel(){
+    	 window.open('${pageContext.request.contextPath}/web/info/presentExcel.do?pcName='+'<%=pcName%>', 'download');
+     }
+     
      google.charts.load('current', {'packages':['table']});
 	    google.charts.setOnLoadCallback(drawTable1);
 
@@ -177,17 +196,42 @@
 	    google.charts.setOnLoadCallback(drawTable2);
 	    function drawTable2() {
 		    var data = new google.visualization.DataTable();
+		    data.addColumn('string', '구분');
 		    data.addColumn('string', 'PC명');
 		    data.addColumn('string', 'OS');
 		    data.addColumn('string', '소프트웨어명');
-		    data.addColumn('string', '정보업데이트');
-		    data.addColumn('string', '비고');
+		    data.addColumn('string', '최종업데이트');
 		    <%if(nameList!=null){%>
 	    	<%for(SoftwareInfoVO p: dataList){%>
-		    	data.addRow(['<%=p.getPcName()%>','<%=p.getPcOs()%>','<%=p.getSwName()%>','<%=p.getUpdateDate()%>','<%=p.getParam1()%>']);
+		    	data.addRow([
+					<%if(p.getParam1() == null || p.getParam1().equals("")) p.setParam1("F");%>
+					'<form>'+
+						'<input type="hidden" name="pcName" value="<%=pcName%>"/>'+
+						'<input type="hidden" name="code" value="R<%=p.getParam1()%>"/>'+
+						'<input type="hidden" name="s_pcName" value="<%=p.getPcName()%>"/>'+
+						'<input type="hidden" name="s_swName" value="<%=p.getSwName()%>"/>'+
+						'<input type="hidden" name="s_swFile" value="<%=p.getSwFile()%>"/>'+
+						<%if(p.getParam1().equals("T")) {%>
+							'<input type="image" style="width:40px; height:20px; cursor:pointer;" src="${pageContext.request.contextPath}/asset/images/legal.png" onclick="setLegal(this.form); return false;" border="0">'+
+						<%}else{%>
+							'<input type="image" style="width:40px; height:20px; cursor:pointer;" src="${pageContext.request.contextPath}/asset/images/illegal.png" onclick="setLegal(this.form); return false;" border="0">'+
+						<%}%>
+					'</form>',
+					'<%=p.getPcName()%>',
+					'<%=p.getPcOs()%>',
+					'<%=p.getSwName()%>',
+					'<%=p.getUpdateDate()%>'
+		    	             ]);
 			<%}}%>
 		    var table = new google.visualization.Table(document.getElementById('table_div2'));
 		    table.draw(data, {sort:'enable', showRowNumber: true, width: '100%', height: '100%', allowHtml: true});
+	    }
+	    
+	    function setLegal(f){
+	    	
+	    	f.method="post";
+	    	f.action="${pageContext.request.contextPath}/web/info/present.do";
+	    	f.submit();
 	    }
 	</script>
      

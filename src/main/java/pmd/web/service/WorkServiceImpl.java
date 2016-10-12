@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import pmd.common.common.PMDUtil;
 import pmd.common.vo.ExpiryManageVO;
 import pmd.common.vo.SoftwareInfoVO;
 import pmd.common.vo.UserInfoVO;
@@ -17,6 +18,7 @@ import pmd.web.dao.WorkDAO;
 @Service("workService")
 public class WorkServiceImpl implements WorkService{
 	Logger log = Logger.getLogger(this.getClass());
+	PMDUtil pmd= new PMDUtil();
 	
 	@Resource(name="workDAO")
 	private WorkDAO workDAO;
@@ -29,11 +31,17 @@ public class WorkServiceImpl implements WorkService{
 		String type= (String)paramMap.get("searchType");
 		if(type != null && !type.equals("")){
 			if(type.equals("company")){
+				pmd.logging("company search");
 				return workDAO.getSearchResultByCompany(paramMap);
-			}else{
+			}else if(type.equals("owner")){
+				pmd.logging("owner search");
 				return workDAO.getSearchResultByOwner(paramMap);
+			}else{
+				pmd.logging("fit search");
+				return workDAO.getSearchResultByFit(paramMap);
 			}
 		}else {
+			pmd.logging("no search");
 			return workDAO.getSearchResult(paramMap);
 		}
 	}

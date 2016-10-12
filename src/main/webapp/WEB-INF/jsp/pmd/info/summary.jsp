@@ -276,7 +276,7 @@
 	        data.addColumn('string', 'IP주소');
 	        data.addColumn('string', '운영체제');
 	        data.addColumn('string', '소프트웨어명');
-	        data.addColumn('string', '업데이트');
+	        data.addColumn('string', '최종업데이트');
 	        
 	        //데이터 부분
 	        data.addRows([

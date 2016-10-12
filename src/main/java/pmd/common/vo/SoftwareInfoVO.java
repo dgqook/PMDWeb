@@ -22,6 +22,7 @@ public class SoftwareInfoVO implements Serializable{
 	private String copyQuantity= "";
 	private String stockQuantity= "";
 	private String usingQuantity= "";
+	private int diffDays= 0;
 	private String param1= "";
 	
 	public String getParam1() {
@@ -201,6 +202,14 @@ public class SoftwareInfoVO implements Serializable{
 				+ pcIp + ", pcOs=" + pcOs + ", updateDate=" + updateDate + ", ownQuantity=" + ownQuantity
 				+ ", ownExpDate=" + ownExpDate + ", originalQuantity=" + originalQuantity + ", copyQuantity="
 				+ copyQuantity + ", stockQuantity=" + stockQuantity + ", usingQuantity=" + usingQuantity + "]";
+	}
+
+	public int getDiffDays() {
+		return diffDays;
+	}
+
+	public void setDiffDays(int diffDays) {
+		this.diffDays = diffDays;
 	}
 	
 	

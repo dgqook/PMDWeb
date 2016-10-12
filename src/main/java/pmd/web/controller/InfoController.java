@@ -202,7 +202,7 @@ public class InfoController {
 				}
 				
 				// 사용 프로그램(정품/복제)가 1개 이상일 경우 -> 차트2에 활용
-				pmd.logging("  [처리후]파일: "+chart1.get(n).getSwName()+", 정품: "+chart1.get(n).getOwnQuantity()+", 복제: "+chart1.get(n).getCopyQuantity()+", 재고: "+chart1.get(n).getStockQuantity());
+				//pmd.logging("  [처리후]파일: "+chart1.get(n).getSwName()+", 정품: "+chart1.get(n).getOwnQuantity()+", 복제: "+chart1.get(n).getCopyQuantity()+", 재고: "+chart1.get(n).getStockQuantity());
 				if(chart1.get(n).getCopyQuantity()>0 || chart1.get(n).getOwnQuantity()>0) {
 					addToChart2= new Chart2VO();
 					addToChart2.setSwName(chart1.get(n).getSwName());
@@ -324,8 +324,39 @@ public class InfoController {
     		/*--------------------------------------------------------------------------*/
     		/*						 	기능 구현 부분 --							*/
     		/*--------------------------------------------------------------------------*/
-    	
+    		//&setLegal="+param+"&SL_PcName="+pcname+"&SL_SwName="+swname;
+    		String SL_Code= request.getParameter("code");
+    		String SL_PcName= request.getParameter("s_pcName");
+    		String SL_SwName= request.getParameter("s_swName");
+    		String SL_SwFile= request.getParameter("s_swFile");
     		
+    		int stock= infoService.getNumberOfLegal(userInfo.getUserId(), SL_SwName);
+    		int checked= infoService.getNumberOfChecked(userInfo.getUserId(), SL_SwName, SL_SwFile); 
+    		
+    		pmd.logging("stock: "+stock+", checked: "+checked);
+    		 // 해당 상품의 재고가 체크한 정품 수량보다 많은 경우만 상태를 바꿀 수 있음 
+    		// RT가 넘어오면 F로 변경
+    		// RF가 넘어오면 T로 변경
+    		// R이 넘어오면 RF로 인식 -> T로 변경
+    		// null이나 빈값이 넘어오면 수행 안함
+	    		if(SL_Code != null && !SL_Code.equals("")){
+	    			if(SL_Code.equals("RT")) {
+	    				infoService.setLegalSoftware(userInfo.getUserId(), "F", SL_PcName, SL_SwName, SL_SwFile);
+	    				pmd.logging(SL_PcName+" > "+SL_SwName+" -> T to F");
+	    				session.setAttribute("servletMessage", "정품 등록이 해제되었습니다.\n남은 개수 : "+(stock-(checked-1)));	    				
+	    			}
+	    			else {
+	    				if(stock >checked) {
+		    				infoService.setLegalSoftware(userInfo.getUserId(), "T", SL_PcName, SL_SwName, SL_SwFile);
+		    				pmd.logging(SL_PcName+" > "+SL_SwName+" -> F to T");
+		    				session.setAttribute("servletMessage", "정품 소프트웨어로 지정되었습니다.\n남은 개수 : "+(stock-(checked+1)));
+	    				}else{
+			    			session.setAttribute("servletMessage", "재고가 부족합니다.");
+			    		}
+	    			}
+	    		}
+	    		
+	    		
     		
     		Map<String,Object> paramMap= new HashMap<String,Object>();
     		paramMap.put("userId", userInfo.getUserId());
@@ -349,11 +380,16 @@ public class InfoController {
     		// 특정 PC만 조회했는지 확인
     		String pcName= request.getParameter("pcName");
     		
+    		
     		// 내용이 없거나 ALL이면 전체 PC 출력
     		if(pcName == null) pcName= "";
     		else{
-    			if(pcName.equals("ALL")) pcName="";
+    			if(pcName.equals("ALL")) {
+    				pcName="";
+    			}
     		}
+    		
+    		session.setAttribute("pcName", pcName);
     		
     		// 전체 PC 소프트웨어를 조회하는 경우
     		if(pcName.equals("")){
@@ -382,6 +418,7 @@ public class InfoController {
     			
     			session.setAttribute("dataList", table1);
     		}else{
+    			
     			paramMap.put("pcName", pcName);
     			rawTable2= infoService.getUserPcListByPk(paramMap);
     			table2= new ArrayList<SoftwareInfoVO>();
@@ -410,6 +447,118 @@ public class InfoController {
     		}
     		session.setAttribute("nameList", nameList);
     		
+    		/*--------------------------------------------------------------------------*/
+    		/*						 	-- 기능 구현 부분							*/
+    		/*--------------------------------------------------------------------------*/
+    	}
+    	/*----------------------------------------------*/
+    	/*				-- 로그인 체크	 			*/
+    	/*----------------------------------------------*/
+    	
+    	
+    	
+    	return mv;
+    } 
+    
+    /*******************************************************************************************************
+     * 현황 페이지																											*
+     * @param commandMap																								*
+     * @return																												*
+     * @throws Exception																									*
+     *******************************************************************************************************/
+    @RequestMapping(value="/web/info/presentExcel.do")
+    public ModelAndView presentExcel(HttpServletRequest request, HttpServletResponse response, CommandMap commandMap) throws Exception{
+    	/*----------------------------------------------------------------*/
+    	/*					기본 반환 페이지 설정 --				  */
+    	/*----------------------------------------------------------------*/
+    	ModelAndView mv = new ModelAndView("/info/presentExcel");
+    	/*----------------------------------------------------------------*/
+    	/*					-- 기본 반환 페이지 설정				  */
+    	/*----------------------------------------------------------------*/    	
+    	
+    	/*------------------------------------------------------------------*/
+    	/*							파라미터 체크 --			  			*/
+    	/*------------------------------------------------------------------*/
+    	if(PMDUtil.LOG_ENABLE) pmd.getParameterLog(commandMap);	
+    	/*------------------------------------------------------------------*/
+    	/*							-- 파라미터 체크			  			*/
+    	/*------------------------------------------------------------------*/    	
+    	
+    	/*----------------------------------------------*/
+    	/*				세션 가져오기 --				*/
+    	/*----------------------------------------------*/
+    	HttpSession session= request.getSession();
+    	/*----------------------------------------------*/
+    	/*				-- 세션 가져오기				*/
+    	/*----------------------------------------------*/    	
+    	
+    	/*------------------------------------------------------------*/
+    	/*				현재 사용자 정보 가져오기 --			  */
+    	/*------------------------------------------------------------*/
+    	UserInfoVO userInfo= pmd.loginCheck(session);
+    	/*------------------------------------------------------------*/
+    	/*				-- 현재 사용자 정보 가져오기			  */
+    	/*------------------------------------------------------------*/
+    	
+    	/*------------------------------------------*/
+    	/*				로그인 체크 -- 			*/
+    	/*------------------------------------------*/
+    	if(userInfo == null){	
+    		////////////// 로그인실패 //////////////
+    		mv.setViewName("/main/login");
+    		response.sendRedirect(PMDUtil.PMD_URL);
+    		
+    	}else{	
+    		////////////// 로그인 성공 //////////////
+    		/*--------------------------------------------------------------------------*/
+    		/*						 	기능 구현 부분 --							*/
+    		/*--------------------------------------------------------------------------*/
+    		
+    		Map<String,Object> paramMap= new HashMap<String,Object>();
+    		paramMap.put("userId", userInfo.getUserId());
+    		
+    		ArrayList<SoftwareInfoVO> table1= null;
+    		ArrayList<SoftwareInfoVO> rawTable1= infoService.getUserPcList(paramMap); // 계정에 소속된 모든 소프트웨어/PC 정보 가져오기
+    		ArrayList<SoftwareInfoVO> table2= null;
+    		ArrayList<SoftwareInfoVO> rawTable2= null;
+    		
+    		// 특정 PC만 조회했는지 확인
+    		String pcName= request.getParameter("pcName");
+    		
+    		// 내용이 없거나 ALL이면 전체 PC 출력
+    		if(pcName == null) pcName= "";
+    		else{
+    			if(pcName.equals("ALL")) {
+    				pcName="";
+    				session.setAttribute("pcName", "ALL");
+    			}else{
+    				session.setAttribute("pcName", pcName);
+    			}
+    		}
+    		
+    		
+    		
+    		// 전체 PC 소프트웨어를 조회하는 경우
+    		if(pcName.equals("")){
+    			table1= new ArrayList<SoftwareInfoVO>(); ////////////////////////////////////////TODO WorkController 내용과 비교해서 다른부분 보정할 것. 
+    			
+    			// 유료 소프트웨어만 가지고 연산하도록 필터링
+    			ArrayList<SoftwareInfoVO> chargedList= infoService.getChargedSoftware(paramMap);
+    			
+    			table1= pmd.includeSoftwareBySwName(rawTable1,chargedList);
+    			session.setAttribute("softwareList", table1);
+    		}else{
+    			
+    			paramMap.put("pcName", pcName);
+    			rawTable2= infoService.getUserPcListByPk(paramMap);
+    			table2= new ArrayList<SoftwareInfoVO>();
+    			
+    			// 유료 소프트웨어만 가지고 연산하도록 필터링
+    			ArrayList<SoftwareInfoVO> chargedList= infoService.getChargedSoftware(paramMap);
+    			
+    			table2= pmd.includeSoftwareBySwName(rawTable2,chargedList);
+    			session.setAttribute("softwareList", table2);
+    		}
     		
     		/*--------------------------------------------------------------------------*/
     		/*						 	-- 기능 구현 부분							*/
@@ -477,11 +626,12 @@ public class InfoController {
 		        	tiktok++;		// 틱톡 값 증가
 		        }
 		        
-		        messages.add(new SoftwareInfoVO(pcOs,"Pc Operating Service",userId,pcName,pcIp,pcOs,updateDate));
+		        messages.add(new SoftwareInfoVO(pcOs,"Pc Operating System",userId,pcName,pcIp,pcOs,updateDate));
 		      
 		        paramMap.put("pcName", pcName);
 		        ArrayList<SoftwareInfoVO> installList= infoService.getInstalledSoftwareWithPcName(paramMap); 	// DB에 입력된 설치 프로그램 목록 가져오기
-			        
+		        //ArrayList<SoftwareInfoVO> manageList= infoService.getManageList(paramMap); // 관리 목록 불러오기
+		        //ArrayList<SoftwareInfoVO> ownList= infoService.getOwnedSoftware(paramMap); // DB에서 보유 프로그램 목록 가져오기    
 		        
 		        // 여기부터 새로 작성
 		        // installList (A) : DB에 입력된 설치 프로그램
@@ -490,8 +640,10 @@ public class InfoController {
 		        //					B엔 없지만 A엔 있는 소프트웨어의 경우, B에서 해당 소프트웨어 정보 삭제
 		        
 		        ArrayList<SoftwareInfoVO> updateList= new ArrayList<SoftwareInfoVO>();	// 업데이트 할 소프트웨어 정보
+		        ArrayList<SoftwareInfoVO> modifyList= new ArrayList<SoftwareInfoVO>();	// 갱신할 소프트웨어 정보
 		        ArrayList<SoftwareInfoVO> existList= new ArrayList<SoftwareInfoVO>();		// 두 목록에 공통적으로 존재하는 소프트웨어 정보
 		        ArrayList<SoftwareInfoVO> deleteList= new ArrayList<SoftwareInfoVO>();	// DB에서 삭제할 소프트웨어 정보
+		        
 		        
 		        String temp1= "";
 		        String temp2= "";
@@ -518,10 +670,15 @@ public class InfoController {
 	        			updateList.add(
         					new SoftwareInfoVO(n.getSwName(), n.getSwFile(), n.getUserId(), n.getPcName(), n.getPcIp(), n.getPcOs(), n.getUpdateDate() )
 	        				);
+	        		}else{
+	        			modifyList.add(
+	        					new SoftwareInfoVO(n.getSwName(), n.getSwFile(), n.getUserId(), n.getPcName(), n.getPcIp(), n.getPcOs(), n.getUpdateDate() )
+		        				);
 	        		}
 	        		isExist= false;
 		        }
 		        
+		        // 없어진 프로그램이라면 삭제
 		        isExist= false;
 		        for(SoftwareInfoVO o:installList){
 		        	for(SoftwareInfoVO e:existList){
@@ -544,37 +701,11 @@ public class InfoController {
 		        
 		        
 		        
-		        /*
-		        ArrayList<SoftwareInfoVO> installListTemp= new ArrayList<SoftwareInfoVO>(installList);	// 비교용 ArrayList
-		        int idx= 0;	// 인덱스
-
 		        
-		        
-		        //boolean isExist= false; 
-		        for(SoftwareInfoVO s:installListTemp) {
-		        	for(SoftwareInfoVO d:installedNoDup) {			// 목록 내에 중복된 소프트웨어 이름 제거
-		        		if(s.getSwName().replaceAll(" ", "").equals(d.getSwName().replaceAll(" ", ""))){
-		        			isExist= true;
-		        		}
-		        	}
-		        	
-		        	for(SoftwareInfoVO i:installListTemp){				// 이미 등록된 소프트웨어와 동일한 이름인 경우 추가X
-		        		if(s.getSwName().replaceAll(" ", "").equals(i.getSwName().replaceAll(" ", "")) && s.getPcName().equals(i.getPcName())){
-		        			isExist= true;
-		        		}
-		        	}
-		        	if(!isExist) installedNoDup.add(new SoftwareInfoVO(installList.get(idx).getSwName(),userId,pcName,pcIp,pcOs,updateDate));
-		        	isExist= false;
-		        	idx++;		// 인덱스 증가
+		        if(modifyList.size()>0){
+		        	paramMap.put("list", modifyList);
+		        	infoService.modifyUserPcSwList(paramMap);
 		        }
-		        
-		        
-		        
-		        if(installedNoDup.size()>0){
-			        paramMap.put("list", installedNoDup);
-			        infoService.updateUserPcSwList(paramMap);
-		        }
-		        */
 		        
 		        if(updateList.size()>0){
 		        	paramMap.put("list", updateList);
@@ -658,6 +789,7 @@ public class InfoController {
     				long diff = expDate.getTime() - nowDate.getTime();
     				Long longDiffDays= diff / (24 * 60 * 60 * 1000);
     			    int diffDays = longDiffDays.intValue();
+    			    ownList.get(i).setDiffDays(diffDays);
     			    
     			    if(diffDays<0) {
     			    	ownList.get(i).setOwnExpDate("<span style=color:red;>기간만료("+ownList.get(i).getOwnExpDate()+")</span>");
@@ -670,7 +802,75 @@ public class InfoController {
     			}
     		}
     		
-    		session.setAttribute("ownList", ownList);
+    		ArrayList<SoftwareInfoVO> manageList= infoService.getManageList(paramMap);
+    		ArrayList<SoftwareInfoVO> installList= infoService.getInstalledSoftware(paramMap); 	// DB에 입력된 설치 프로그램 목록 가져오기
+    		ArrayList<SoftwareInfoVO> chargeList= infoService.getChargedSoftware(paramMap);
+    		boolean isExist= false;
+    		String ins_swName;
+    		String ins_swFile;
+    		String chr_swName;
+    		String chr_swFile;
+    		String man_swName;
+    		String man_swFile;
+    		
+    		pmd.logging("start filtering / manageSize: "+manageList.size()+", installSize: "+installList.size()+", chargeSize: "+chargeList.size() );
+	        for(SoftwareInfoVO i:installList){
+	        	// 유료소프트웨어 검증 후 추가
+    			for(SoftwareInfoVO c:chargeList){
+    				//pmd.logging("chargeName: "+c.getSwName()+", installName: "+i.getSwName());
+    				ins_swName= i.getSwName();
+    				ins_swFile= i.getSwFile();
+    				chr_swName= c.getSwName();
+    				chr_swFile= c.getSwFile();
+    				if(ins_swName.replaceAll(" ", "").equals(chr_swName.replaceAll(" ", "")) && ins_swFile.replaceAll(" ", "").equals(chr_swFile.replaceAll(" ", ""))){
+    					pmd.logging("match! - swName: "+c.getSwName());
+    					isExist= false;
+    					for(int m=0; m<manageList.size(); m++){
+    						man_swName= manageList.get(m).getSwName();
+    						man_swFile= manageList.get(m).getSwFile();
+        	        		// 설치내역과 관리목록의 소프트웨어 명이 같은 경우 개수만 추가
+        	        		if(ins_swName.replaceAll(" ","").equals(man_swName.replaceAll(" ", ""))){
+        	        			//pmd.logging("already exist! - swName: "+i.getSwName());
+        	        			manageList.get(m).setOwnQuantity(  String.valueOf(  Integer.parseInt( manageList.get(m).getOwnQuantity() ) + 1  )  );
+        	        			isExist= true;
+        	        		}
+                		}
+    					
+    					if(!isExist){
+    						//pmd.logging("new Software! - swName: "+c.getSwName());
+    						SoftwareInfoVO newSw= new SoftwareInfoVO();
+        					newSw.setSwName(c.getSwName());
+        					newSw.setSwVendor(c.getSwVendor());
+        					newSw.setOwnQuantity(String.valueOf(1));
+    						manageList.add(newSw);
+    					}
+    					break; //TODO mtest1 계정으로 실험해본 결과 V3Lite가 잡히지 않음. 마지막행이 누락되는 것 같은데 이유파악 필요..
+    					
+    				}
+    				
+    			}
+        	}
+	        
+	        
+	        for(int i=manageList.size()-1; i>=0; i--){
+	        	pmd.logging("manageList - swName: "+manageList.get(i).getSwName()+", quantity: "+manageList.get(i).getOwnQuantity());
+	        	for(SoftwareInfoVO o:ownList){
+	        		if(manageList.get(i).getSwName().equals(o.getSwName())){
+	        			manageList.remove(i);
+	        		}
+	        	}
+	        }
+	        	
+	        	
+	        if(manageList.size()>0){
+		        for(SoftwareInfoVO s:manageList){
+		        	s.setDiffDays(-9999);
+		        	s.setOwnExpDate("<span style=color:red;>미구매</span>");
+		        	ownList.add(s);
+		        }
+	        }
+	        
+	        session.setAttribute("ownList", ownList);
     		/*--------------------------------------------------------------------------*/
     		/*						 	-- 기능 구현 부분							*/
     		/*--------------------------------------------------------------------------*/
@@ -970,14 +1170,37 @@ public class InfoController {
     		/*--------------------------------------------------------------------------*/
     	
     		Map<String, Object> paramMap= new HashMap<String,Object>();
-    		String ownSer= request.getParameter("ser");
+    		String ownSer= request.getParameter("ownSer");
+    		String swName= request.getParameter("swName");
+    		String swFile= request.getParameter("swFile");
+    		String swVendor= request.getParameter("swVendor");
+    		String ownQuantity= request.getParameter("ownQuantity");
+    		String ownExpDate= request.getParameter("ownExpDate");
+    		
+    		// 파라미터가 아예 지정되지 않은 경우
     		if(ownSer == null || ownSer.equals("")){
-    			mv.setViewName("/info/manage");
-	    		mv.addObject("servletMessage", "오류가 발생했습니다.");
-    		} else {
+    			if(ownExpDate.contains("미구매")){
+    				SoftwareInfoVO software= new SoftwareInfoVO();
+    				software.setSwName(swName);
+    				software.setSwFile(swFile);
+    				software.setSwVendor(swVendor);
+    				software.setOwnQuantity(ownQuantity);
+    				session.setAttribute("softwareInfo", software);
+    				session.setAttribute("modifyMode", "new");
+    			}else{
+    				mv.setViewName("/info/manage");
+    	    		mv.addObject("servletMessage", "오류가 발생했습니다.");
+    			}
+    			
+	    		
+	    	// 미구매 제품 - 수정
+    		}  else {
+    			
     			paramMap.put("ownSer", ownSer);
     			SoftwareInfoVO ownSoftwareInfo= infoService.getOwnSoftwareInfo(paramMap);
     			session.setAttribute("softwareInfo", ownSoftwareInfo);
+    			session.setAttribute("modifyMode", "own");
+    			
     		}
     		
     		/*--------------------------------------------------------------------------*/
@@ -992,7 +1215,7 @@ public class InfoController {
     
     
     /*******************************************************************************************************
-     * 관리 페이지 > 수정페이지 > 수정																		*
+     * 관리 페이지 > 수정페이지 > 수정																					*
      * @param commandMap	                                           													*
      * @return																												*
      * @throws Exception																									*
@@ -1044,20 +1267,37 @@ public class InfoController {
     		/*--------------------------------------------------------------------------*/
     		/*						 	기능 구현 부분 --							*/
     		/*--------------------------------------------------------------------------*/
-    		String ownSer= "";
-    		String ownExpDate= "";
-    		String ownQuantity= "";
     
-    		ownSer= request.getParameter("ownSer");
-    		ownExpDate= request.getParameter("ownExpDate");
-    		ownQuantity= request.getParameter("ownQuantity");
+    		
+    		String modifyMode= request.getParameter("modifyMode");
     		
     		Map<String,Object> paramMap= new HashMap<String,Object>();
-    		paramMap.put("ownSer", ownSer);
-    		paramMap.put("ownExpDate", ownExpDate);
-    		paramMap.put("ownQuantity", ownQuantity);
-    		infoService.doModifyQuantity(paramMap);
+    		paramMap.put("userId", userInfo.getUserId());
     		
+    		if(modifyMode.equals("own")){
+    			String ownSer= request.getParameter("ownSer");
+        		String ownExpDate= request.getParameter("ownExpDate");
+        		String ownQuantity= request.getParameter("ownQuantity");
+        		
+	    		paramMap.put("ownSer", ownSer);
+	    		paramMap.put("ownExpDate", ownExpDate);
+	    		paramMap.put("ownQuantity", ownQuantity);
+	    		infoService.doModifyQuantity(paramMap);
+    		}else{
+    			String swName= request.getParameter("swName");
+        		String userId= request.getParameter("userId");
+        		String swVendor= request.getParameter("swVendor");
+        		String ownQuantity= request.getParameter("ownQuantity");
+        		String ownExpDate= request.getParameter("ownExpDate");
+        		
+        		paramMap.put("swName", swName);
+	    		paramMap.put("userId", userId);
+	    		paramMap.put("swVendor", swVendor);
+	    		paramMap.put("ownQuantity", ownQuantity);
+	    		paramMap.put("ownExpDate", ownExpDate);
+	    		
+	    		infoService.doRegisterASoftware(paramMap);
+    		}
 	           
     		mv.addObject("servletMessage", "수정되었습니다.");
     		/*--------------------------------------------------------------------------*/
@@ -1248,7 +1488,7 @@ public class InfoController {
     					
     					// 새로 만든 놈들 중에 겹치는 놈을 골라서 따로 빼내고
     					addToArray= registerList.get(i);
-    					// 남짜 다시 체크
+    					// 날짜 다시 체크
     					addToArray.setOwnExpDate(expiryDate);
     					// 기존 갯수 + 새로 추가된 갯수
     					addToArray.setOwnQuantity(
@@ -1537,7 +1777,7 @@ public class InfoController {
     }
     
     /*********************************************************************************************
-     * 현황 페이지																								*
+     * 검색 페이지																								*
      * @param commandMap																					*
      * @return																									*		
      * @throws Exception																						*
@@ -1612,4 +1852,6 @@ public class InfoController {
     	/*----------------------------------------------*/
     	return mv;
     } 
+    
+    
 }

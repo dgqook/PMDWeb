@@ -284,6 +284,20 @@
   	  			    	    f[0].submit();
                   		}
                   	}
+			    	function doSearch3(f, evt){
+                  		var keyCode = evt.which?evt.which:event.keyCode;
+                  		var f= document.getElementsByName("registerForm3");
+                  		if(keyCode==13){
+                  			if(f[0].searchKeyword.value == null || f[0].searchKeyword.value == ""){
+                  				alert("검색어를 입력하세요.");
+                  				f[0].searchKeyword.focus();
+                  				return false;
+                  			}
+                  			f[0].method="post";
+  	  			    	    f[0].action="${pageContext.request.contextPath}/web/work/generalFilter.do";
+  	  			    	    f[0].submit();
+                  		}
+                  	}
 			    	
 			    	function clearForm(f){
 			    		f.value= "";
@@ -302,6 +316,13 @@
 										placeholder="검색어를 입력하세요.(enter)" onkeydown="doSearch2(this.form, event)"
 										value="${ownerKeyword}" onclick="clearForm(this)">
 						<input type="hidden" name="searchType" value="owner"/>
+					</form>
+					<form name="registerForm3" class="inlineForms">
+					   	완전일치(업체명) : 
+					    <input class="textBox" type="text" name="searchKeyword" 
+										placeholder="검색어를 입력하세요.(enter)" onkeydown="doSearch3(this.form, event)"
+										value="${ownerKeyword}" onclick="clearForm(this)">
+						<input type="hidden" name="searchType" value="fit"/>
 					</form>
 				</div>
 				

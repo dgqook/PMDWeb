@@ -5,7 +5,6 @@ import java.util.Map;
 import org.springframework.stereotype.Repository;
 
 import pmd.common.dao.AbstractDAO;
-import pmd.common.vo.ContactInfoVO;
 import pmd.common.vo.ExContactInfoVO;
 
 @Repository("externalDAO")

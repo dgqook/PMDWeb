@@ -16,6 +16,7 @@
 		<result property="updateDate" column="UPDATE_DATE"/>
 		<result property="ownQuantity" column="OWN_QUANTITY"/>
 		<result property="ownExpDate" column="OWN_EXP_DATE"/>
+		<result property="param1" column= "PARAM1"/>
 	</resultMap>
 	     
      <!-- 보유 소프트웨어 조회 -->
@@ -46,7 +47,8 @@
             	PC_OS,
             	SW_NAME,
             	SW_FILE,
-            	UPDATE_DATE
+            	UPDATE_DATE,
+            	PARAM1
             FROM
                 INSTALLED_SW_LIST
             WHERE
@@ -64,7 +66,8 @@
             	PC_OS,
             	SW_NAME,
             	SW_FILE,
-            	UPDATE_DATE
+            	UPDATE_DATE,
+            	PARAM1
             FROM
                 INSTALLED_SW_LIST
             WHERE
@@ -136,6 +139,23 @@
     </insert>
     
     <!-- 사용자 PC에 있는 소프트웨어를 DB에 업데이트 -->
+    <insert id="modifyUserPcSwList" parameterType="hashmap">
+    	<![CDATA[
+    		UPDATE INSTALLED_SW_LIST SET UPDATE_DATE= CASE WHEN
+    	]]>
+   		<foreach collection="list" item="item" separator="WHEN">
+   		<![CDATA[
+   			SW_NAME=#{item.swName} AND SW_FILE=#{item.swFile} AND USER_ID=#{item.userId} AND PC_NAME=#{item.pcName} AND PC_IP=#{item.pcIp} AND PC_OS=#{item.pcOs} THEN #{nowDate} 
+   			
+   		]]>
+   		</foreach>
+   		<![CDATA[
+    		ELSE UPDATE_DATE
+   			END
+    	]]>
+    </insert>
+    
+    <!-- 사용자 PC에 있는 소프트웨어를 DB에 업데이트 -->
     <delete id="deleteUserPcSwList" parameterType="hashmap">
     	<![CDATA[
     		DELETE FROM INSTALLED_SW_LIST WHERE
@@ -180,6 +200,15 @@
    		</foreach>
     </insert>
     
+    <!-- 보유 소프트웨어 등록 -->
+    <insert id="doRegisterASoftware" parameterType="hashmap">
+    	<![CDATA[
+    		INSERT INTO OWNED_SW_LIST(SW_NAME,USER_ID,SW_VENDOR,OWN_QUANTITY,OWN_EXP_DATE)
+    		VALUES
+    		(#{swName},#{userId},#{swVendor},#{ownQuantity}, if(#{ownExpDate}='',null,#{ownExpDate}))
+	   		]]>
+    </insert>
+    
     <!-- 보유 소프트웨어 수량 추가 -->
     <update id="doUpdateSoftware" parameterType="hashmap">
     	<![CDATA[
@@ -207,6 +236,14 @@
     	</foreach>
     </delete>
     
+    <delete id="doDeleteASoftware" parameterType="hashMap">
+    	<![CDATA[
+    		DELETE FROM OWNED_SW_LIST WHERE
+    	
+    			OWN_SER=${item.ownSer}
+    		]]>
+    </delete>
+    
     <!-- 특정 키워드를 포함하는 유료 소프트웨어 목록 조회 -->
     <select id="getOwnSoftwareInfo" parameterType="hashmap" resultMap="softwareInfoVO">
         <![CDATA[
@@ -228,10 +265,68 @@
             UPDATE
             	OWNED_SW_LIST
             SET
-                OWN_QUANTITY = ${ownQuantity}, OWN_EXP_DATE=${ownExpDate}
+                OWN_QUANTITY = ${ownQuantity}, OWN_EXP_DATE=#{ownExpDate}
             WHERE
             	OWN_SER = ${ownSer}
         ]]>
     </update>
     
+    <!-- 정품 PC 지정 -->
+    <update id="setLegalSoftware" parameterType="hashmap">
+        <![CDATA[
+            UPDATE
+            	INSTALLED_SW_LIST
+            SET
+                PARAM1 = #{code}
+            WHERE
+            	USER_ID= #{userId} AND PC_NAME = #{pcName} AND SW_NAME=#{swName} AND SW_FILE=#{swFile}
+        ]]>
+    </update> 
+    
+    <!-- 등록된 정품 소프트웨어의 개수 반환 -->
+    <select id="getNumberOfLegal" parameterType="hashmap" resultType="String">
+        <![CDATA[
+            SELECT
+            	OWN_QUANTITY
+            FROM
+                OWNED_SW_LIST
+            WHERE
+            	USER_ID = #{userId} AND SW_NAME= #{swName}
+        ]]>
+    </select>
+    
+    <!-- 체크된 정품 소프트웨어의 개수 반환 -->
+    <select id="getNumberOfChecked" parameterType="hashmap" resultType="String">
+        <![CDATA[
+            SELECT
+            	COUNT(if(PARAM1='T', 'T', null))
+            FROM
+                INSTALLED_SW_LIST
+            WHERE
+            	USER_ID = #{userId} AND SW_NAME= #{swName} AND SW_FILE= #{swFile}
+        ]]>
+    </select>
+    
+    
+    <select id="getManageList" parameterType="hashmap" resultMap="softwareInfoVO">
+        <![CDATA[
+            SELECT
+            	SW_NAME, QUANTITY
+            FROM
+                MANAGE_LIST
+            WHERE
+            	USER_ID = #{userId}
+        ]]>
+    </select>
+    
+    <select id="getUserEmailAddress" parameterType="hashmap" resultType="hashmap">
+        <![CDATA[
+            SELECT
+            	USER_EMAIL
+            FROM
+                USER_LIST
+            WHERE
+            	USER_ID = #{userId}
+        ]]>
+    </select>
 </mapper>
