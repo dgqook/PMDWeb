@@ -5,6 +5,7 @@ import java.util.HashMap;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -319,6 +320,35 @@ public class AppProtocolController {
 		
 		// 반환 페이지에 데이터 삽입
 		mv.addObject("result", result);
+		return mv;
+	}
+	
+	/*******************************************************************************************************
+	 * 어플리케이션 - 요약정보 웹뷰																					*
+	 * @param commandMap																								*
+	 * @return																												*
+	 * @throws Exception																									*
+	 *******************************************************************************************************/
+	@RequestMapping(value="/app/summary.do")
+	public ModelAndView appSummary(HttpServletRequest request, HttpServletResponse response, CommandMap commandMap) throws Exception{
+		// 도입 로그
+		pmd.logging("[APP] /app/summary.do");
+		
+		// 반환 페이지 설정
+		ModelAndView mv= new ModelAndView("external/summary");
+		
+		// 파라미터 체크
+		HashMap<String,Object> paramMap= pmd.getParameter(commandMap);
+		
+		// 서비스로부터 데이터를 받고 그대로 반환 (JSON 문자열 형태로 옴)
+		HashMap<String,Object> result= appProtocolService.appSummary(paramMap);
+		
+		HttpSession session= request.getSession();
+		// 반환 페이지에 데이터 삽입
+		session.setAttribute("chart1Count", result.get("chart1Count"));
+		session.setAttribute("chart1", result.get("chart1"));
+		session.setAttribute("chart2", result.get("chart2"));
+		session.setAttribute("chart3", result.get("chart3"));
 		return mv;
 	}
 }

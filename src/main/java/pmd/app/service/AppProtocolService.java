@@ -100,4 +100,12 @@ public interface AppProtocolService {
 	 *******************************************************************************************************/
 	String appSearch(HashMap<String, Object> paramMap);
 
+	/*******************************************************************************************************
+	 * 어플리케이션 - 요약정보 웹뷰																						*
+	 * @param commandMap																								*
+	 * @return																												*
+	 * @throws Exception																									*
+	 *******************************************************************************************************/
+	HashMap<String, Object> appSummary(HashMap<String, Object> paramMap);
+
 }

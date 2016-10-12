@@ -1138,4 +1138,195 @@ public class AppProtocolServiceImpl implements AppProtocolService {
 		return result.toJSONString();
 	}
 
+	/*******************************************************************************************************
+	 * 어플리케이션 - 요약정보 웹뷰																						*
+	 * @param commandMap																								*
+	 * @return																												*
+	 * @throws Exception																									*
+	 *******************************************************************************************************/
+	@Override
+	public HashMap<String, Object> appSummary(HashMap<String, Object> paramMap) {
+		pmd.logging("[APP] /app/summary.do - service");
+		
+		// 반환할 JSONObject 객체 생성
+		HashMap<String, Object> result= new HashMap<String, Object>();
+		
+		// 파라미터가 없는 지 체크
+		if(paramMap.isEmpty()){
+			//pmd.logging("[APP] /app/graph.do - service1");
+			result.put("success", false);
+		}else{
+			// 파라미터 값 가져오기
+			String userId= (String) paramMap.get("userId");
+			pmd.logging("[APP] /app/summary.do - service - userId: "+userId);
+			
+			// 파라미터 유효성 체크
+			if(pmd.checkNullBlank(userId)) result.put("success", false);
+			else{
+				try{ // 기능 구현
+					//pmd.logging("[APP] /app/graph.do - service2");
+					
+					// 목록 가져오기
+					ArrayList<SoftwareInfoVO> rawInstalledList= infoService.getInstalledSoftware(paramMap);
+					ArrayList<SoftwareInfoVO> ownedList= null;
+					ArrayList<SoftwareInfoVO> installedList= null;
+					// --목록 가져오기
+					
+					///// 유료 소프트웨어만 가지고 연산하도록 필터링 /////
+					ArrayList<SoftwareInfoVO> chargedList= infoService.getChargedSoftware(paramMap);
+					
+					///// 보유 소프트웨어 리스트 및 설치 소프트웨어 리스트 필터링 ///
+					ownedList= infoService.getOwnedSoftware(paramMap);
+					installedList= pmd.includeSoftwareBySwName(rawInstalledList, chargedList);
+		    	
+					// 차트 데이터 만들기(소프트웨어 사용 정보) -> 소프트웨어명, 보유정품수량, 복제수량, 재고
+					Chart1VO addToChart1= null;
+					ArrayList<Chart1VO> chart1= new ArrayList<Chart1VO>();
+					
+					// 차트 데이터 만들기(사용 중인 소프트웨어) -> 소프트웨어명, 사용 수량
+					Chart2VO addToChart2= null;
+					ArrayList<Chart2VO> chart2= new ArrayList<Chart2VO>();
+					
+					// 차트 데이터 만들기(도표) -> 컴퓨터명, IP주소, 운영체제, 소프트웨어명, 업데이트
+					Chart3VO addToChart3= null;
+					ArrayList<Chart3VO> chart3= new ArrayList<Chart3VO>();
+					
+					///// 보유 정품 소프트웨어 중복 제거 (다른 만료일자인 경우) /////
+					ownedList= pmd.removeDuplicateBySwName(ownedList);
+					
+					///// 만료 제품 제거 /////
+					ownedList= pmd.removeExpiredSoftware(ownedList);
+					
+					
+					// 보유 정품 소프트웨어 이름 및 개수 파악
+					for(SoftwareInfoVO o:ownedList){
+						//pmd.logging("[가공전]이름: "+o.getSwName()+", 보유개수: "+o.getOwnQuantity());
+						addToChart1= new Chart1VO();
+						addToChart1.setSwName(o.getSwName());
+						addToChart1.setOwnQuantity(Integer.parseInt(o.getOwnQuantity().replace(" ", "")));
+						chart1.add(addToChart1);
+					}
+					
+					// 사용중인 프로그램 이름도 차트1에 추가, , 차트3 데이터 수집
+					for(SoftwareInfoVO i:installedList){
+						boolean needToAdd= true;
+						for(Chart1VO c1:chart1){
+							if(c1.getSwName().replaceAll(" ", "").equals(i.getSwName().replaceAll(" ", ""))){
+								needToAdd=false;
+							}
+						}
+						if(needToAdd){
+							addToChart1= new Chart1VO();
+							addToChart1.setSwName(i.getSwName());
+							chart1.add(addToChart1);
+						}
+						needToAdd=false;
+						
+						addToChart3= new Chart3VO();
+						addToChart3.setPcIp(i.getPcIp());
+						addToChart3.setPcName(i.getPcName());
+						addToChart3.setPcOs(i.getPcOs());
+						addToChart3.setSwName(i.getSwName());
+						addToChart3.setUpdateDate(i.getUpdateDate().substring(0, 19));
+						chart3.add(addToChart3);
+					}
+					
+					// 보유 정품 소프트웨어 중 사용중인 개수 파악 (정품, 복제)
+					for(int n=0; n<chart1.size(); n++){
+						for(SoftwareInfoVO i:installedList){
+							if(chart1.get(n).getSwName().replaceAll(" ","").equals(i.getSwName().replaceAll(" ",""))){
+								if(chart1.get(n).getCopyQuantity()==0){
+									chart1.get(n).setCopyQuantity(1);
+								}else{
+									chart1.get(n).setCopyQuantity(chart1.get(n).getCopyQuantity()+1);
+								}
+							}
+						}	
+					}
+					
+					// 정품, 복제, 재고 소프트웨어 갯수 파악 및 등록
+					for(int n=0; n<chart1.size(); n++){
+						int temp= chart1.get(n).getOwnQuantity()-chart1.get(n).getCopyQuantity();
+						//pmd.logging("[처리전]파일: "+chart1.get(n).getSwName()+", 정품: "+chart1.get(n).getOwnQuantity());
+						
+						if(temp>0){ // 보유 개수가 사용 개수보다 많은 경우
+							chart1.get(n).setOwnQuantity(chart1.get(n).getCopyQuantity());
+							chart1.get(n).setCopyQuantity(0);
+							chart1.get(n).setStockQuantity(temp);
+						}else if(temp<0){//보유 개수가 사용 개수보다 적은 경우
+							// 보유 소프트웨어 개수 그대로 진행
+							chart1.get(n).setCopyQuantity(temp*(-1));
+							chart1.get(n).setStockQuantity(0);
+						}else{
+							// 보유 소프트웨어 개수 그대로 진행
+							chart1.get(n).setCopyQuantity(0);
+							chart1.get(n).setStockQuantity(0);
+						}
+						
+						// 사용 프로그램(정품/복제)가 1개 이상일 경우 -> 차트2에 활용
+						//pmd.logging("  [처리후]파일: "+chart1.get(n).getSwName()+", 정품: "+chart1.get(n).getOwnQuantity()+", 복제: "+chart1.get(n).getCopyQuantity()+", 재고: "+chart1.get(n).getStockQuantity());
+						if(chart1.get(n).getCopyQuantity()>0 || chart1.get(n).getOwnQuantity()>0) {
+							addToChart2= new Chart2VO();
+							addToChart2.setSwName(chart1.get(n).getSwName());
+							addToChart2.setUsingQuantity(chart1.get(n).getCopyQuantity()+chart1.get(n).getOwnQuantity());
+							chart2.add(addToChart2);
+							//log.debug("추가!");
+						}
+					}
+					
+			        // jsp를 사용해 출력하므로 모델뷰가 아닌 세션에 데이터를 저장한다.
+					
+					chart1.sort(new Comparator<Chart1VO>(){
+						@Override
+						public int compare(Chart1VO o1, Chart1VO o2) {
+							int o1sum= o1.getOwnQuantity() + o1.getCopyQuantity() + o1.getStockQuantity();
+							int o2sum= o2.getOwnQuantity() + o2.getCopyQuantity() + o2.getStockQuantity();
+							if(o1sum > o2sum) return -1;
+							else if(o1sum < o2sum) return 1;
+							else return 0;
+						}
+					});
+			        
+			        chart2.sort(new Comparator<Chart2VO>() {
+			        	@Override
+			        	public int compare(Chart2VO o1, Chart2VO o2) {
+			        		if(o1.getUsingQuantity() > o2.getUsingQuantity()) return -1;
+			        		else if(o1.getUsingQuantity() < o2.getUsingQuantity()) return 1;
+			        		else return 0;
+			        	}
+					});
+			        
+			        // 정렬하기
+			        chart3.sort(new Comparator<Chart3VO>(){
+			        	@Override
+			        	public int compare(Chart3VO o1, Chart3VO o2) {
+			        		SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			        		Date o1date = null;
+			        		Date o2date = null;
+			        		try {
+			        			o1date = transFormat.parse(o1.getUpdateDate());
+			        			o2date = transFormat.parse(o2.getUpdateDate());
+							} catch (ParseException e) {
+								o1date = new Date();
+								o2date = new Date();
+							}
+			        		if(o1date.before(o2date)) return 1;
+			        		else return -1;
+			        	}
+			        });
+			       result.put("chart1Count", chart1.size());
+			       result.put("chart1", chart1);
+			       result.put("chart2", chart2);
+			       result.put("chart3", chart3);
+					
+					result.put("success", true);
+				}catch(Exception e){
+					e.printStackTrace();
+					result.put("success", false);
+				}
+			}
+		}
+		return result;
+	}
+
 }
